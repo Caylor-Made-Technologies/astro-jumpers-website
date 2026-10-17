@@ -25,7 +25,8 @@ window.SITE = {
     // Phone: "display" is what people see; "dial" is digits only for tap-to-call.
     phone: { display: "(806) 000-0000", dial: "+18060000000" },   // [PLACEHOLDER]
     email: "hello@example.com",                                    // [PLACEHOLDER]
-    logo: "assets/logo-cropped.jpg",
+    logo: "assets/logo-cropped.jpg",     // big logo in the hero
+    logoIcon: "assets/logo-icon.png",    // small round badge in the header/footer
     // Where the site will live once it's online (used for social sharing + Google).
     siteUrl: "https://example.com",                                // [PLACEHOLDER]
   },
