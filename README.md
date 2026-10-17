@@ -103,7 +103,8 @@ At the top of `css/styles.css`, the `:root { ... }` block holds every color (`--
 
 1. Save the new logo as `assets/logo.jpg`.
 2. Run `python3 tools/make-icons.py` (needs Python 3 and `pip install pillow`).
-   It trims any black bars off the top and bottom and makes `logo-cropped.jpg`, the favicons, and `og-image.jpg`. It also prints the logo's main colors in case you want to retune the CSS variables.
+   It trims the black bars and white frame and makes `logo-cropped.jpg` (hero), `logo-icon.png` (header/footer badge), the favicons, and `og-image.jpg`. It also prints the logo's main colors in case you want to retune the CSS variables.
+   The small icons are a close-up of the astronaut, because the full logo is unreadable at 16–32 px. If a new logo is laid out differently, adjust `ICON_BOX` at the top of the script.
 
 ---
 

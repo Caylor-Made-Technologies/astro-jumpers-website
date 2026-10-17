@@ -50,6 +50,7 @@
     $all("[data-email]").forEach(function (a) { a.href = "mailto:" + B.email; });
     $all("[data-email-text]").forEach(function (s) { s.textContent = B.email; });
     $all("[data-logo]").forEach(function (img) { if (B.logo) img.src = B.logo; });
+    $all("[data-logo-icon]").forEach(function (img) { if (B.logoIcon) img.src = B.logoIcon; });
     $all("[data-content]").forEach(function (node) {
       var value = node.getAttribute("data-content").split(".").reduce(function (o, k) { return o && o[k]; }, S);
       if (typeof value === "string") node.textContent = value;

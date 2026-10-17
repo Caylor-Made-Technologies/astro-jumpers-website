@@ -5,24 +5,26 @@
    ===================================================================== */
 
 :root {
-  /* ---- Brand colors (sampled from the logo) ---- */
-  --space-900: #070a24;   /* deepest background */
-  --space-800: #0b0f33;   /* main background */
-  --space-700: #161a4a;   /* panels / cards */
-  --space-600: #232867;   /* borders, hover */
-  --sky-400:   #4cc3ff;   /* sky blue accent */
-  --sky-300:   #8ad8ff;   /* light blue for links on dark */
-  --orange-500:#ff5a1f;   /* orange-red accent */
-  --orange-400:#ff7a3d;   /* button hover */
-  --yellow-300:#ffd34d;   /* stars / small highlights */
+  /* ---- Brand colors (sampled from assets/logo.jpg) ---- */
+  --space-900: #0b0820;   /* deepest background (footer, inputs) */
+  --space-800: #130e2d;   /* main background: the logo's night sky */
+  --space-700: #1f1851;   /* panels / cards: logo's deep indigo */
+  --space-600: #351369;   /* borders: logo's purple */
+  --nebula:    #551d62;   /* nebula glow behind the bounce house */
+  --sky-400:   #368cd1;   /* bounce house blue */
+  --sky-300:   #88d3f2;   /* bounce house highlight blue (links, labels) */
+  --orange-600:#d7452a;   /* exact logo orange-red (decorative only; too dark for text on buttons) */
+  --orange-500:#f2643f;   /* brightened logo orange for buttons: 5.9:1 with navy text */
+  --orange-400:#ff7a4f;   /* button hover */
+  --yellow-300:#ffd34d;   /* stars / focus ring / placeholder badges */
   --white:     #ffffff;
-  --text:      #f3f5ff;   /* body text on dark */
-  --text-muted:#b9bfe6;   /* secondary text on dark (AA on --space-700) */
-  --ink:       #0b0f33;   /* dark text on bright buttons */
+  --text:      #f4f2ff;   /* body text on dark */
+  --text-muted:#bdb8e6;   /* secondary text (8.5:1 on cards) */
+  --ink:       #130e2d;   /* dark text on bright buttons */
 
   /* ---- Roles ---- */
   --bg: var(--space-800);
-  --bg-alt: rgba(22, 26, 74, .55);
+  --bg-alt: rgba(31, 24, 81, .45);
   --surface: var(--space-700);
   --border: var(--space-600);
   --accent: var(--orange-500);
@@ -41,7 +43,7 @@
   --radius: 18px;
   --radius-lg: 28px;
   --shadow: 0 10px 30px rgba(0, 0, 0, .35);
-  --glow-orange: 0 6px 22px rgba(255, 90, 31, .35);
+  --glow-orange: 0 6px 22px rgba(242, 100, 63, .35);
   --header-h: 64px;
   --gutter: 16px;
   --max-w: 1160px;
@@ -56,7 +58,7 @@ html { scroll-behavior: smooth; scroll-padding-top: calc(var(--header-h) + 12px)
 }
 body {
   margin: 0;
-  background: radial-gradient(ellipse at 50% -10%, #2a1f6e 0%, var(--space-800) 55%, var(--space-900) 100%) fixed, var(--space-800);
+  background: radial-gradient(ellipse at 50% -10%, var(--nebula) 0%, var(--space-800) 55%, var(--space-900) 100%) fixed, var(--space-800);
   color: var(--text);
   font: 400 1.0625rem/1.6 var(--font-body);
   padding-bottom: 64px; /* room for the phone call bar */
@@ -108,12 +110,12 @@ p { margin: 0 0 1em; }
 /* ---------- Header & nav ---------- */
 .site-header {
   position: sticky; top: 0; z-index: 50;
-  border-bottom: 1px solid rgba(76, 195, 255, .15);
+  border-bottom: 1px solid rgba(54, 140, 209, .15);
 }
 /* Blur lives on a pseudo-element: backdrop-filter on the header itself would trap the fixed mobile menu inside it. */
 .site-header::before {
   content: ""; position: absolute; inset: 0; z-index: -1;
-  background: rgba(7, 10, 36, .85);
+  background: rgba(11, 8, 32, .85);
   -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
 }
 .header-inner { display: flex; align-items: center; justify-content: space-between; height: var(--header-h); gap: 12px; }
@@ -138,7 +140,7 @@ p { margin: 0 0 1em; }
   display: none;
   position: fixed; top: var(--header-h); left: 0; right: 0; bottom: 0;
   padding: 16px var(--gutter) 32px; overflow-y: auto;
-  background: rgba(7, 10, 36, .97);
+  background: rgba(11, 8, 32, .97);
 }
 .site-nav.is-open { display: block; }
 .site-nav ul { list-style: none; margin: 0 0 20px; padding: 0; }
@@ -151,12 +153,12 @@ p { margin: 0 0 1em; }
 
 /* ---------- Sections ---------- */
 .section { padding: 64px 0; }
-.section-alt { background: var(--bg-alt); border-block: 1px solid rgba(76, 195, 255, .08); }
+.section-alt { background: var(--bg-alt); border-block: 1px solid rgba(54, 140, 209, .08); }
 .section-head { text-align: center; max-width: 680px; margin: 0 auto 36px; }
 .section-head p:last-child { color: var(--text-muted); margin-bottom: 0; }
 .eyebrow {
   display: inline-block; margin-bottom: .6em !important; padding: .25em .9em;
-  border-radius: 999px; background: rgba(76, 195, 255, .12); color: var(--sky-300) !important;
+  border-radius: 999px; background: rgba(54, 140, 209, .12); color: var(--sky-300) !important;
   font: 600 .85rem/1.4 var(--font-display); letter-spacing: .12em; text-transform: uppercase;
 }
 .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
@@ -166,9 +168,8 @@ p { margin: 0 0 1em; }
 .hero { padding: 32px 0 56px; text-align: center; }
 .hero-inner { display: grid; gap: 24px; justify-items: center; }
 .hero-logo {
-  width: min(82vw, 420px); height: auto; aspect-ratio: 1;
-  object-fit: contain; border-radius: var(--radius-lg);
-  filter: drop-shadow(0 18px 40px rgba(76, 195, 255, .25));
+  width: min(86vw, 440px); height: auto; border-radius: var(--radius-lg);
+  box-shadow: 0 0 0 3px rgba(136, 211, 242, .25), 0 18px 50px rgba(85, 29, 98, .7), 0 0 80px rgba(54, 140, 209, .25);
   animation: float 6s ease-in-out infinite;
 }
 @keyframes float { 50% { transform: translateY(-10px); } }
@@ -221,8 +222,8 @@ p { margin: 0 0 1em; }
 .area-grid { display: grid; gap: 20px; }
 .town-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
 .town-list li {
-  padding: 8px 14px; border-radius: 999px; background: rgba(76, 195, 255, .12);
-  border: 1px solid rgba(76, 195, 255, .35); font-weight: 700;
+  padding: 8px 14px; border-radius: 999px; background: rgba(54, 140, 209, .12);
+  border: 1px solid rgba(54, 140, 209, .35); font-weight: 700;
 }
 .town-list li::before { content: "📍 "; }
 .fee-table { width: 100%; border-collapse: collapse; }
@@ -246,7 +247,7 @@ p { margin: 0 0 1em; }
   width: 100%; min-height: 56px; padding: 16px 20px; text-align: left;
   background: none; border: 0; color: var(--white); font: 600 1.1rem/1.3 var(--font-display); cursor: pointer;
 }
-.accordion-btn:hover { background: rgba(76, 195, 255, .07); }
+.accordion-btn:hover { background: rgba(54, 140, 209, .07); }
 .accordion-btn:focus-visible { outline-offset: -3px; }
 .accordion-icon { flex: none; position: relative; width: 28px; height: 28px; border-radius: 50%; background: var(--accent-2); }
 .accordion-icon::before, .accordion-icon::after {
@@ -286,7 +287,7 @@ input, select, textarea {
   font: 400 1rem var(--font-body); /* 16px+ stops iPhone zoom-on-focus */
 }
 input::placeholder, textarea::placeholder { color: #8d93c0; }
-input:focus, select:focus, textarea:focus { border-color: var(--accent-2); outline: none; box-shadow: 0 0 0 3px rgba(76, 195, 255, .35); }
+input:focus, select:focus, textarea:focus { border-color: var(--accent-2); outline: none; box-shadow: 0 0 0 3px rgba(54, 140, 209, .35); }
 input[type="date"] { color-scheme: dark; }
 select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--sky-300) 50%), linear-gradient(135deg, var(--sky-300) 50%, transparent 50%); background-position: calc(100% - 20px) 50%, calc(100% - 14px) 50%; background-size: 6px 6px; background-repeat: no-repeat; padding-right: 40px; }
 textarea { resize: vertical; min-height: 110px; }
@@ -297,7 +298,7 @@ textarea { resize: vertical; min-height: 110px; }
   border: 2px solid var(--border); border-radius: 999px; background: var(--space-900); cursor: pointer; font-weight: 600 !important;
 }
 .choice input { width: 20px; min-height: 0; height: 20px; margin: 0; accent-color: var(--accent); }
-.choice:has(input:checked) { border-color: var(--accent); background: rgba(255, 90, 31, .12); }
+.choice:has(input:checked) { border-color: var(--accent); background: rgba(242, 100, 63, .12); }
 .was-validated .choice-row:has(:invalid) .choice { border-color: var(--error); }
 .form-hint { color: var(--text-muted); font-size: .9rem; margin: 16px 0; }
 .form-status { margin: 16px 0 0; font-weight: 700; min-height: 1.5em; }
@@ -365,7 +366,7 @@ textarea { resize: vertical; min-height: 110px; }
   }
   .site-nav ul { display: flex; gap: 4px; margin: 0; }
   .site-nav li a { border: 0; padding: 8px 10px; font-size: 1.02rem; border-radius: 999px; }
-  .site-nav li a:hover { background: rgba(76, 195, 255, .12); color: var(--white); }
+  .site-nav li a:hover { background: rgba(54, 140, 209, .12); color: var(--white); }
   .nav-cta { width: auto; }
   .brand img { width: 52px; height: 52px; }
 
