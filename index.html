@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+  <!-- SEO: edit title/description here (search engines read these before any script runs) -->
+  <title>Astro Jumpers | Bounce House Rentals in Hereford &amp; Amarillo, TX</title>
+  <meta name="description" content="Astro Jumpers rents bounce houses, combo slides, water slides, and obstacle courses for parties and events in Hereford, Amarillo, and across the Texas Panhandle. Delivery and setup included.">
+  <meta name="theme-color" content="#130e2d">
+  <link rel="canonical" href="https://example.com/"><!-- [PLACEHOLDER] your real web address -->
+
+  <!-- Open Graph (Facebook, iMessage, etc. link previews) -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Astro Jumpers">
+  <meta property="og:title" content="Astro Jumpers | Bounce House Rentals in Hereford &amp; Amarillo, TX">
+  <meta property="og:description" content="Out-of-this-world fun for your next party! Bounce house and inflatable rentals delivered across the Texas Panhandle.">
+  <meta property="og:url" content="https://example.com/"><!-- [PLACEHOLDER] -->
+  <meta property="og:image" content="https://example.com/assets/og-image.jpg"><!-- [PLACEHOLDER] must be a full URL -->
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Icons -->
+  <link rel="icon" href="assets/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
+
+  <link rel="stylesheet" href="css/styles.css">
+
+  <!-- LocalBusiness structured data is generated from content.js by js/main.js -->
+  <script src="content.js" defer></script>
+  <script src="js/main.js" defer></script>
+  <script src="js/starfield.js" defer></script>
+</head>
+<body>
+  <canvas id="starfield" aria-hidden="true"></canvas>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- ============ HEADER ============ -->
+  <header class="site-header" id="top">
+    <div class="container header-inner">
+      <a class="brand" href="#top" aria-label="Astro Jumpers home">
+        <img data-logo-icon src="assets/logo-icon.png" alt="" width="48" height="48">
+        <span class="brand-name">Astro Jumpers</span>
+      </a>
+
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
+        <span class="menu-icon" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span class="visually-hidden">Menu</span>
+      </button>
+
+      <nav class="site-nav" id="site-nav" aria-label="Main">
+        <ul>
+          <li><a href="#rentals">Rentals</a></li>
+          <li><a href="#how">How It Works</a></li>
+          <li><a href="#area">Service Area</a></li>
+          <li><a href="#safety">Safety</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#gallery">Gallery</a></li>
+          <li><a href="#reviews">Reviews</a></li>
+        </ul>
+        <a class="btn btn-primary nav-cta" href="#book">Book Now</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ============ HERO ============ -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="container hero-inner">
+        <img class="hero-logo" data-logo src="assets/logo-cropped.jpg" alt="Astro Jumpers logo: a cartoon astronaut on a blue and orange bounce house in outer space" width="1000" height="974">
+        <div class="hero-copy">
+          <h1 id="hero-title" data-content="business.tagline">Out-of-this-world fun for your next party!</h1>
+          <p class="hero-sub" data-content="business.intro">Bounce houses, combos, and water slides delivered, set up, and picked up across Hereford and the Texas Panhandle.</p>
+          <div class="btn-row">
+            <a class="btn btn-primary btn-lg" href="#book">Book Now</a>
+            <a class="btn btn-secondary btn-lg" data-tel href="tel:+18060000000">📞 Call <span data-phone>(806) 000-0000</span></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ RENTALS ============ -->
+    <section class="section" id="rentals" aria-labelledby="rentals-title">
+      <div class="container">
+        <header class="section-head">
+          <p class="eyebrow">Our fleet</p>
+          <h2 id="rentals-title">Choose Your Jumper</h2>
+          <p>Every rental includes delivery, setup, and pickup. Prices and sizes coming soon.</p>
+        </header>
+        <div class="card-grid" id="rental-list"><!-- built from content.js --></div>
+      </div>
+    </section>
+
+    <!-- ============ HOW IT WORKS ============ -->
+    <section class="section section-alt" id="how" aria-labelledby="how-title">
+      <div class="container">
+        <header class="section-head">
+          <p class="eyebrow">Easy as 1-2-3</p>
+          <h2 id="how-title">How It Works</h2>
+        </header>
+        <ol class="steps" id="step-list"><!-- built from content.js --></ol>
+      </div>
+    </section>
+
+    <!-- ============ SERVICE AREA ============ -->
+    <section class="section" id="area" aria-labelledby="area-title">
+      <div class="container">
+        <header class="section-head">
+          <p class="eyebrow">Our orbit</p>
+          <h2 id="area-title">Service Area</h2>
+          <p>Based in <span data-content="business.city">Hereford</span>, Texas, and serving the surrounding Panhandle.</p>
+        </header>
+        <div class="area-grid">
+          <div class="panel">
+            <h3>Towns we serve</h3>
+            <ul class="town-list" id="town-list"><!-- built from content.js --></ul>
+          </div>
+          <div class="panel">
+            <h3>Delivery fees</h3>
+            <table class="fee-table">
+              <caption class="visually-hidden">Delivery fees by distance</caption>
+              <thead><tr><th scope="col">Area</th><th scope="col">Fee</th></tr></thead>
+              <tbody id="fee-list"><!-- built from content.js --></tbody>
+            </table>
+            <p class="note" id="delivery-note"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SAFETY ============ -->
+    <section class="section section-alt" id="safety" aria-labelledby="safety-title">
+      <div class="container">
+        <header class="section-head">
+          <p class="eyebrow">Mission control</p>
+          <h2 id="safety-title">Safety &amp; Rules</h2>
+        </header>
+        <div class="info-grid" id="safety-list"><!-- built from content.js --></div>
+      </div>
+    </section>
+
+    <!-- ============ FAQ ============ -->
+    <section class="section" id="faq" aria-labelledby="faq-title">
+      <div class="container narrow">
+        <header class="section-head">
+          <p class="eyebrow">Questions?</p>
+          <h2 id="faq-title">Frequently Asked Questions</h2>
+        </header>
+        <div class="accordion" id="faq-list"><!-- built from content.js --></div>
+      </div>
+    </section>
+
+    <!-- ============ GALLERY ============ -->
+    <section class="section section-alt" id="gallery" aria-labelledby="gallery-title">
+      <div class="container">
+        <header class="section-head">
+          <p class="eyebrow">Mission photos</p>
+          <h2 id="gallery-title">Gallery</h2>
+        </header>
+        <div class="gallery-grid" id="gallery-list"><!-- built from content.js --></div>
+      </div>
+    </section>
+
+    <!-- ============ REVIEWS ============ -->
+    <section class="section" id="reviews" aria-labelledby="reviews-title">
+      <div class="container">
+        <header class="section-head">
+          <p class="eyebrow">Happy astronauts</p>
+          <h2 id="reviews-title">What Parents Say</h2>
+        </header>
+        <div class="review-grid" id="review-list"><!-- built from content.js --></div>
+      </div>
+    </section>
+
+    <!-- ============ BOOKING FORM ============ -->
+    <section class="section section-alt" id="book" aria-labelledby="book-title">
+      <div class="container narrow">
+        <header class="section-head">
+          <p class="eyebrow">Ready for launch?</p>
+          <h2 id="book-title">Request a Quote</h2>
+          <p>Tell us about your party and we'll confirm availability and pricing. Prefer to talk? <a data-tel href="tel:+18060000000">Call <span data-phone>(806) 000-0000</span></a>.</p>
+        </header>
+
+        <!-- Netlify Forms reads this form when the site is deployed (name + data-netlify).
+             To use Formspree instead, see content.js → form. -->
+        <form class="booking-form panel" id="booking-form" name="booking" method="POST"
+              data-netlify="true" netlify-honeypot="bot-field" novalidate>
+          <input type="hidden" name="form-name" value="booking">
+          <p class="visually-hidden"><label>Leave this empty: <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+
+          <div class="field-grid">
+            <div class="field">
+              <label for="f-name">Your name <span class="req" aria-hidden="true">*</span></label>
+              <input id="f-name" name="name" type="text" autocomplete="name" required>
+            </div>
+            <div class="field">
+              <label for="f-phone">Phone <span class="req" aria-hidden="true">*</span></label>
+              <input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required>
+            </div>
+            <div class="field">
+              <label for="f-email">Email <span class="req" aria-hidden="true">*</span></label>
+              <input id="f-email" name="email" type="email" autocomplete="email" required>
+            </div>
+            <div class="field">
+              <label for="f-date">Event date <span class="req" aria-hidden="true">*</span></label>
+              <input id="f-date" name="event_date" type="date" required>
+            </div>
+            <div class="field field-wide">
+              <label for="f-address">Event address</label>
+              <input id="f-address" name="event_address" type="text" autocomplete="street-address" placeholder="Street address">
+            </div>
+            <div class="field">
+              <label for="f-town">Town <span class="req" aria-hidden="true">*</span></label>
+              <select id="f-town" name="event_town" required>
+                <option value="">Choose a town…</option>
+                <!-- towns added from content.js -->
+                <option value="Other">Other (tell us in notes)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="f-rental">Which rental? <span class="req" aria-hidden="true">*</span></label>
+              <select id="f-rental" name="rental" required>
+                <option value="">Choose a rental…</option>
+                <!-- rentals added from content.js -->
+                <option value="Not sure yet">Not sure yet</option>
+              </select>
+            </div>
+            <fieldset class="field field-wide">
+              <legend>Setup surface <span class="req" aria-hidden="true">*</span></legend>
+              <div class="choice-row">
+                <label class="choice"><input type="radio" name="surface" value="Grass" required> Grass</label>
+                <label class="choice"><input type="radio" name="surface" value="Concrete / driveway"> Concrete / driveway</label>
+                <label class="choice"><input type="radio" name="surface" value="Not sure"> Not sure</label>
+              </div>
+            </fieldset>
+            <div class="field field-wide">
+              <label for="f-notes">Notes</label>
+              <textarea id="f-notes" name="notes" rows="4" placeholder="Party times, number of kids, power outlet nearby, questions…"></textarea>
+            </div>
+          </div>
+
+          <p class="form-hint"><span class="req" aria-hidden="true">*</span> Required</p>
+          <button class="btn btn-primary btn-lg btn-block" type="submit">🚀 Send Request</button>
+          <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a class="brand" href="#top">
+          <img data-logo-icon src="assets/logo-icon.png" alt="" width="48" height="48">
+          <span class="brand-name">Astro Jumpers</span>
+        </a>
+        <p class="muted">Bounce house &amp; inflatable rentals in <span data-content="business.city">Hereford</span>, Texas.</p>
+        <ul class="social-list" id="social-list"><!-- built from content.js --></ul>
+      </div>
+      <div>
+        <h2 class="footer-title">Contact</h2>
+        <ul class="plain-list">
+          <li><a data-tel href="tel:+18060000000">📞 <span data-phone>(806) 000-0000</span></a></li>
+          <li><a data-email href="mailto:hello@example.com">✉️ <span data-email-text>hello@example.com</span></a></li>
+        </ul>
+        <h2 class="footer-title">Hours</h2>
+        <ul class="plain-list" id="hours-list"><!-- built from content.js --></ul>
+      </div>
+      <div>
+        <h2 class="footer-title">Service Area</h2>
+        <p class="muted" id="footer-towns"></p>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <p>© <span id="year">2026</span> Astro Jumpers. All rights reserved.</p>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </footer>
+
+  <!-- Sticky tap-to-call bar on phones -->
+  <a class="call-bar" data-tel href="tel:+18060000000">📞 Call or text <span data-phone>(806) 000-0000</span></a>
+</body>
+</html>
