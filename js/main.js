@@ -58,45 +58,6 @@
     $("#year").textContent = new Date().getFullYear();
   }
 
-  /* ---------- Rentals ---------- */
-  function renderRentals() {
-    var list = $("#rental-list");
-    S.rentals.forEach(function (r) {
-      var specs = el("dl", { class: "specs" }, [
-        el("div", {}, [el("dt", { text: "Size" }), el("dd", { text: r.size })]),
-        el("div", {}, [el("dt", { text: "Space" }), el("dd", { text: r.space })]),
-        el("div", {}, [el("dt", { text: "Ages" }), el("dd", { text: r.ages })])
-      ]);
-      var price = el("p", { class: "price" }, [
-        el("span", { class: "price-amount", text: r.price === "TBD" ? "Price TBD" : r.price }),
-        r.priceNote && r.price !== "TBD" ? el("span", { class: "price-note", text: " " + r.priceNote }) : null
-      ]);
-      var btn = el("a", { class: "btn btn-primary btn-block", href: "#book", "data-rental": r.id, text: "Request This One" });
-      btn.setAttribute("aria-label", "Request the " + r.name);
-
-      list.appendChild(el("article", { class: "card rental-card" }, [
-        el("div", { class: "card-media" }, [
-          photo(r.image, r.imageAlt || r.name, "1200 x 900", "card-img"),
-          r.placeholder ? el("span", { class: "badge", text: "Placeholder" }) : null
-        ]),
-        el("div", { class: "card-body" }, [
-          el("h3", { text: r.name }),
-          el("p", { class: "card-desc", text: r.description }),
-          specs, price, btn
-        ])
-      ]));
-    });
-
-    // "Request This One" pre-selects that rental in the booking form.
-    list.addEventListener("click", function (e) {
-      var link = e.target.closest("[data-rental]");
-      if (!link) return;
-      var id = link.getAttribute("data-rental");
-      var match = S.rentals.filter(function (r) { return r.id === id; })[0];
-      if (match) $("#f-rental").value = match.name;
-    });
-  }
-
   /* ---------- Steps, safety ---------- */
   function renderSteps() {
     var list = $("#step-list");
@@ -224,61 +185,6 @@
     window.matchMedia("(min-width: 960px)").addEventListener("change", function (mq) { if (mq.matches) setOpen(false); });
   }
 
-  /* ---------- Booking form ---------- */
-  function setupForm() {
-    var form = $("#booking-form"), status = $("#form-status");
-    var town = $("#f-town"), rental = $("#f-rental");
-    var townOther = town.lastElementChild, rentalOther = rental.lastElementChild;
-    S.towns.forEach(function (t) { town.insertBefore(el("option", { value: t, text: t }), townOther); });
-    S.rentals.forEach(function (r) { rental.insertBefore(el("option", { value: r.name, text: r.name }), rentalOther); });
-
-    // No booking dates in the past.
-    var today = new Date();
-    today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
-    $("#f-date").min = today.toISOString().slice(0, 10);
-
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      status.className = "form-status";
-      if (!form.checkValidity()) {
-        form.classList.add("was-validated");
-        var firstBad = form.querySelector(":invalid");
-        if (firstBad) firstBad.focus();
-        status.textContent = "Please fill in the highlighted fields.";
-        status.classList.add("is-error");
-        return;
-      }
-
-      var cfg = S.form, data = new FormData(form);
-      var btn = form.querySelector("[type=submit]");
-      btn.disabled = true;
-
-      var request;
-      if (cfg.provider === "netlify") {
-        request = fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams(data).toString() });
-      } else if (cfg.provider === "formspree" && cfg.formspreeEndpoint) {
-        request = fetch(cfg.formspreeEndpoint, { method: "POST", body: data, headers: { "Accept": "application/json" } });
-      } else {
-        // provider "none": nothing is sent. Handy for testing the layout.
-        console.info("Form not connected yet. Would have sent:", Object.fromEntries(data));
-        request = Promise.resolve({ ok: true });
-      }
-
-      request.then(function (res) {
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        form.reset();
-        form.classList.remove("was-validated");
-        status.textContent = cfg.successMessage;
-        status.classList.add("is-success");
-      }).catch(function (err) {
-        console.error(err);
-        status.textContent = cfg.errorMessage + " " + B.phone.display;
-        status.classList.add("is-error");
-      }).then(function () { btn.disabled = false; });
-    });
-  }
-
   /* ---------- Placeholder highlighting ---------- */
   // Adds a dashed outline to any text that still says [PLACEHOLDER] or TBD, so nothing slips through.
   function markPlaceholders() {
@@ -287,8 +193,10 @@
     });
   }
 
+  // Shared with js/units.js, which builds the rental cards.
+  window.AstroUI = { el: el, photo: photo, isPlaceholder: isPlaceholder };
+
   fillContact();
-  renderRentals();
   renderSteps();
   renderTowns();
   renderSafety();
@@ -298,6 +206,5 @@
   renderFooter();
   renderSchema();
   setupMenu();
-  setupForm();
   markPlaceholders();
 })();

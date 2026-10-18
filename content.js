@@ -45,6 +45,7 @@ window.SITE = {
   ],
 
   /* ---------- Service area ----------
+     Hereford and surrounding towns out to Amarillo, Olton, and Hart.
      Add a town by adding a new "Name" to the list. It shows up in the
      Service Area section, the footer, and the booking form automatically. */
   towns: [
@@ -71,63 +72,52 @@ window.SITE = {
     ]
   },
 
-  /* ---------- Rentals ----------
-     Copy one { ... } block to add a new rental. "id" must be unique,
-     lowercase, no spaces (it's used behind the scenes). */
-  rentals: [
-    {
-      id: "bounce-house",
-      name: "Classic Bounce House",
-      placeholder: true,                 // set to false once the info is real
+  /* ---------- Rentals (Supabase) ----------
+     Rentals now live in a Supabase database so the owner can manage them
+     from admin.html (add, edit, hide, upload photos, mark dates booked).
+     Fill in these two values from Supabase → Project Settings → API.
+     The "anon" key is meant to be public; the database rules keep it safe.
+     NEVER paste the "service_role" key here. */
+  supabase: {
+    url: "",       // e.g. "https://abcdefgh.supabase.co"
+    anonKey: ""    // the long "anon public" key
+  },
+
+  /* Backup list: shown ONLY if Supabase isn't set up yet or can't be reached.
+     Once Supabase is connected, edit rentals in admin.html, not here. */
+  fallbackUnits: [
+    { id: "classic-bounce-house", name: "Classic Bounce House", type: "Bounce House", size: "13' x 13'", price: null,
       description: "[PLACEHOLDER] A roomy, colorful jumper that's perfect for birthday parties and backyard fun.",
-      image: "",                         // e.g. "assets/rentals/bounce-house.jpg"
-      imageAlt: "Classic bounce house set up in a backyard",
-      size: "13' x 13' (TBD)",
-      space: "Needs about 17' x 17' of flat space (TBD)",
-      ages: "Ages 3–12 (TBD)",
-      price: "TBD",
-      priceNote: "per day"
-    },
-    {
-      id: "combo-slide",
-      name: "Combo with Slide",
-      placeholder: true,
+      photo_url: "assets/placeholders/classic-bounce-house.svg" },
+    { id: "rocket-castle", name: "Rocket Castle Bouncer", type: "Bounce House", size: "15' x 15'", price: null,
+      description: "[PLACEHOLDER] A castle-style bouncer with rocket towers and a big jumping area.",
+      photo_url: "assets/placeholders/rocket-castle.svg" },
+    { id: "moon-mini", name: "Moon Mini Toddler Bounce", type: "Bounce House", size: "10' x 10'", price: null,
+      description: "[PLACEHOLDER] Low walls and a soft entry ramp for the littlest astronauts.",
+      photo_url: "assets/placeholders/moon-mini.svg" },
+    { id: "galaxy-combo", name: "Galaxy Combo with Slide", type: "Combo", size: "15' x 20'", price: null,
       description: "[PLACEHOLDER] Bounce area, climbing wall, and a slide all in one. A crowd favorite.",
-      image: "",
-      imageAlt: "Bounce house combo with a slide",
-      size: "15' x 20' (TBD)",
-      space: "Needs about 20' x 25' of flat space (TBD)",
-      ages: "Ages 4–12 (TBD)",
-      price: "TBD",
-      priceNote: "per day"
-    },
-    {
-      id: "water-slide",
-      name: "Water Slide",
-      placeholder: true,
-      description: "[PLACEHOLDER] Beat the Panhandle heat with a tall inflatable water slide and splash pool.",
-      image: "",
-      imageAlt: "Inflatable water slide with a splash pool",
-      size: "12' x 30' (TBD)",
-      space: "Needs about 17' x 40' of flat grass (TBD)",
-      ages: "Ages 5+ (TBD)",
-      price: "TBD",
-      priceNote: "per day"
-    },
-    {
-      id: "obstacle-course",
-      name: "Obstacle Course",
-      placeholder: true,
-      description: "[PLACEHOLDER] Race your friends through tunnels, pop-ups, and a slide finish.",
-      image: "",
-      imageAlt: "Inflatable obstacle course",
-      size: "10' x 40' (TBD)",
-      space: "Needs about 15' x 50' of flat space (TBD)",
-      ages: "Ages 5+ (TBD)",
-      price: "TBD",
-      priceNote: "per day"
-    }
+      photo_url: "assets/placeholders/galaxy-combo.svg" },
+    { id: "lunar-lander-combo", name: "Lunar Lander Combo", type: "Combo", size: "18' x 22'", price: null,
+      description: "[PLACEHOLDER] Basketball hoop, pop-up obstacles, and a slide out the front hatch.",
+      photo_url: "assets/placeholders/lunar-lander-combo.svg" },
+    { id: "meteor-wet-dry", name: "Meteor Wet/Dry Combo", type: "Combo", size: "16' x 24'", price: null,
+      description: "[PLACEHOLDER] Use it dry for bouncing or hook up a hose for a splash landing.",
+      photo_url: "assets/placeholders/meteor-wet-dry.svg" },
+    { id: "saturn-splash", name: "Saturn Splash Water Slide", type: "Water Slide", size: "12' x 30'", price: null,
+      description: "[PLACEHOLDER] Beat the Panhandle heat with a tall water slide and splash pool.",
+      photo_url: "assets/placeholders/saturn-splash.svg" },
+    { id: "comet-dual-lane", name: "Comet Dual-Lane Water Slide", type: "Water Slide", size: "16' x 35'", price: null,
+      description: "[PLACEHOLDER] Two lanes so friends can race to the splash zone.",
+      photo_url: "assets/placeholders/comet-dual-lane.svg" },
+    { id: "asteroid-obstacle", name: "Asteroid Obstacle Course", type: "Obstacle Course", size: "10' x 40'", price: null,
+      description: "[PLACEHOLDER] Tunnels, pop-ups, and a slide finish. Race your friends!",
+      photo_url: "assets/placeholders/asteroid-obstacle.svg" },
+    { id: "space-race-60", name: "Space Race 60' Obstacle Course", type: "Obstacle Course", size: "12' x 60'", price: null,
+      description: "[PLACEHOLDER] Our longest course, great for school events and big parties.",
+      photo_url: "assets/placeholders/space-race-60.svg" }
   ],
+
 
   /* ---------- How it works (3 steps) ---------- */
   steps: [
@@ -182,13 +172,10 @@ window.SITE = {
   ],
 
   /* ---------- Booking form ----------
-     provider: "none"      → form shows a thank-you message but sends nothing (for testing)
-               "netlify"   → uses Netlify Forms (works automatically when hosted on Netlify)
-               "formspree" → set formspreeEndpoint to your form's URL, e.g. "https://formspree.io/f/abcd1234" */
-  form: {
-    provider: "none",
-    formspreeEndpoint: "",
-    successMessage: "Thanks! Your request is in orbit. We'll reach out soon to confirm availability and pricing.",
-    errorMessage: "Hmm, something went wrong sending your request. Please call or text us instead."
+     Bookings are saved in Supabase (see supabase/ and the README).
+     serviceArea is shown on the booking form; the town dropdown uses "towns" above. */
+  booking: {
+    serviceArea: "We deliver to Hereford, TX and surrounding towns out to Amarillo, Olton, and Hart.",
+    confirmWithin: "24 hours"   // shown on the confirmation screen
   }
 };

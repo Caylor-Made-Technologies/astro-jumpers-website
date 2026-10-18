@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Admin | Astro Jumpers</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#130e2d">
+  <link rel="icon" href="assets/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <script src="content.js" defer></script>
+  <script src="js/vendor/supabase-2.117.2.js" defer></script>
+  <script src="js/admin.js" defer></script>
+  <script src="js/starfield.js" defer></script>
+</head>
+<body class="admin">
+  <canvas id="starfield" aria-hidden="true"></canvas>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html">
+        <img src="assets/logo-icon.png" alt="" width="48" height="48">
+        <span class="brand-name">Astro Jumpers</span>
+        <span class="admin-tag">Admin</span>
+      </a>
+      <div class="admin-header-actions">
+        <a class="admin-link" href="index.html">View site</a>
+        <button class="btn btn-secondary btn-sm" id="sign-out" type="button" hidden>Sign out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container admin-main" id="main">
+
+    <!-- Shown until Supabase keys are filled in -->
+    <section class="panel admin-panel" id="setup-needed" hidden>
+      <h1>Connect Supabase first</h1>
+      <p>The admin page needs your Supabase project. Open <code>content.js</code> and fill in <code>supabase.url</code> and <code>supabase.anonKey</code>, then reload this page. The README has step-by-step instructions.</p>
+    </section>
+
+    <!-- Sign in -->
+    <section class="panel admin-panel" id="login-view" hidden>
+      <h1>Mission control sign-in</h1>
+      <form id="login-form" novalidate>
+        <div class="field">
+          <label for="login-email">Email</label>
+          <input id="login-email" type="email" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label for="login-password">Password</label>
+          <input id="login-password" type="password" autocomplete="current-password" required>
+        </div>
+        <button class="btn btn-primary btn-block" type="submit">Sign in</button>
+        <button class="text-btn" id="forgot-password" type="button">Forgot password?</button>
+        <p class="form-status" id="login-status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <!-- After a password-reset email link -->
+    <section class="panel admin-panel" id="reset-view" hidden>
+      <h1>Choose a new password</h1>
+      <form id="reset-form" novalidate>
+        <div class="field">
+          <label for="new-password">New password (8+ characters)</label>
+          <input id="new-password" type="password" autocomplete="new-password" minlength="8" required>
+        </div>
+        <button class="btn btn-primary btn-block" type="submit">Save password</button>
+        <p class="form-status" id="reset-status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <!-- Signed in, but not on the admin list -->
+    <section class="panel admin-panel" id="denied-view" hidden>
+      <h1>Not an admin account</h1>
+      <p>You're signed in as <strong id="denied-email"></strong>, but this account isn't on the admin list. The README explains how to add it (one line in the Supabase SQL Editor).</p>
+    </section>
+
+    <!-- The admin app -->
+    <section id="app-view" hidden>
+      <div class="admin-tabs" role="tablist" aria-label="Admin sections">
+        <button class="admin-tab" role="tab" id="tab-units" aria-controls="panel-units" aria-selected="true" type="button">🚀 Rentals</button>
+        <button class="admin-tab" role="tab" id="tab-bookings" aria-controls="panel-bookings" aria-selected="false" type="button" tabindex="-1">📅 Bookings <span class="tab-count" id="pending-count" hidden></span></button>
+        <button class="admin-tab" role="tab" id="tab-blocks" aria-controls="panel-blocks" aria-selected="false" type="button" tabindex="-1">🛠️ Blocked</button>
+      </div>
+
+      <div class="admin-tabpanel" role="tabpanel" id="panel-units" aria-labelledby="tab-units">
+        <div class="admin-toolbar">
+          <p class="muted" id="units-summary">Loading…</p>
+          <button class="btn btn-primary" id="add-unit" type="button">＋ Add rental</button>
+        </div>
+        <ul class="admin-list" id="units-list"></ul>
+      </div>
+
+      <div class="admin-tabpanel" role="tabpanel" id="panel-bookings" aria-labelledby="tab-bookings" hidden>
+        <div class="admin-toolbar">
+          <label class="filter-label" for="booking-filter">Show</label>
+          <select id="booking-filter">
+            <option value="active">Upcoming: pending + confirmed</option>
+            <option value="pending">Pending only (needs your answer)</option>
+            <option value="confirmed">Confirmed only</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div id="bookings-list" class="booking-groups"></div>
+
+        <details class="panel booking-add">
+          <summary>＋ Add a phone booking</summary>
+          <form id="booking-add-form" novalidate>
+            <p class="muted">For bookings you take by phone or text. They're saved as <strong>confirmed</strong>. If you add an email, the customer gets the "confirmed" email.</p>
+            <div class="field-grid">
+              <div class="field">
+                <label for="b-date">Date</label>
+                <input id="b-date" type="date" required>
+              </div>
+              <div class="field">
+                <label for="b-unit">Rental</label>
+                <select id="b-unit" required></select>
+              </div>
+              <div class="field">
+                <label for="b-name">Customer name</label>
+                <input id="b-name" type="text" autocomplete="off">
+              </div>
+              <div class="field">
+                <label for="b-phone">Phone</label>
+                <input id="b-phone" type="tel" inputmode="tel" autocomplete="off">
+              </div>
+              <div class="field">
+                <label for="b-email">Email <span class="muted">(optional)</span></label>
+                <input id="b-email" type="email" autocomplete="off">
+              </div>
+              <div class="field">
+                <label for="b-address">Event address</label>
+                <input id="b-address" type="text" autocomplete="off">
+              </div>
+              <div class="field field-wide">
+                <label for="b-notes">Notes</label>
+                <input id="b-notes" type="text" autocomplete="off" placeholder="Town, time, payment…">
+              </div>
+            </div>
+            <button class="btn btn-primary" type="submit">Add booking</button>
+            <p class="form-status" id="booking-status" role="status" aria-live="polite"></p>
+          </form>
+        </details>
+      </div>
+
+      <div class="admin-tabpanel" role="tabpanel" id="panel-blocks" aria-labelledby="tab-blocks" hidden>
+        <form class="panel booking-add" id="block-form" novalidate>
+          <h2>Block dates</h2>
+          <p class="muted">For maintenance, repairs, or days off. Blocked rentals show "🚀 On a Mission" and can't be booked online.</p>
+          <div class="field-grid">
+            <div class="field">
+              <label for="k-from">From</label>
+              <input id="k-from" type="date" required>
+            </div>
+            <div class="field">
+              <label for="k-to">To <span class="muted">(optional, up to 31 days)</span></label>
+              <input id="k-to" type="date">
+            </div>
+            <div class="field">
+              <label for="k-unit">Rental</label>
+              <select id="k-unit"></select>
+            </div>
+            <div class="field">
+              <label for="k-reason">Reason <span class="muted">(only you see this)</span></label>
+              <input id="k-reason" type="text" maxlength="120" placeholder="Maintenance">
+            </div>
+          </div>
+          <button class="btn btn-primary" type="submit">Block</button>
+          <p class="form-status" id="block-status" role="status" aria-live="polite"></p>
+        </form>
+        <h2 class="admin-subhead">Upcoming blocked dates</h2>
+        <ul class="admin-list" id="blocks-list"></ul>
+      </div>
+    </section>
+  </main>
+
+  <!-- Add / edit rental -->
+  <dialog class="unit-dialog" id="unit-dialog" aria-labelledby="unit-dialog-title">
+    <form id="unit-form" method="dialog" novalidate>
+      <h2 id="unit-dialog-title">Add rental</h2>
+      <div class="field">
+        <label for="u-name">Name <span class="req" aria-hidden="true">*</span></label>
+        <input id="u-name" type="text" required maxlength="80">
+      </div>
+      <div class="field-grid">
+        <div class="field">
+          <label for="u-type">Type <span class="req" aria-hidden="true">*</span></label>
+          <input id="u-type" type="text" list="type-options" required maxlength="40" placeholder="Bounce House">
+          <datalist id="type-options"></datalist>
+        </div>
+        <div class="field">
+          <label for="u-size">Size</label>
+          <input id="u-size" type="text" maxlength="40" placeholder="13' x 13'">
+        </div>
+        <div class="field">
+          <label for="u-price">Price per day ($)</label>
+          <input id="u-price" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Leave blank for “Price TBD”">
+        </div>
+        <div class="field field-check">
+          <label class="switch">
+            <input type="checkbox" id="u-active" checked>
+            <span class="switch-track" aria-hidden="true"></span>
+            <span>Show on website</span>
+          </label>
+        </div>
+      </div>
+      <div class="field">
+        <label for="u-description">Description</label>
+        <textarea id="u-description" rows="3" maxlength="600"></textarea>
+      </div>
+
+      <fieldset class="field photo-field">
+        <legend>Photo</legend>
+        <div class="photo-row">
+          <div class="photo-preview" id="u-photo-preview"><span>No photo</span></div>
+          <div class="photo-controls">
+            <label class="btn btn-secondary btn-sm file-btn" for="u-photo-file">📷 Upload photo</label>
+            <input id="u-photo-file" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" class="visually-hidden">
+            <p class="muted small">Landscape photos look best (4:3). Big phone photos are shrunk automatically before upload.</p>
+            <label class="small" for="u-photo-url">…or paste an image link</label>
+            <input id="u-photo-url" type="url" inputmode="url" placeholder="https://…">
+          </div>
+        </div>
+      </fieldset>
+
+      <p class="form-status" id="unit-status" role="status" aria-live="polite"></p>
+      <div class="dialog-actions">
+        <button class="btn btn-secondary" type="button" id="unit-cancel">Cancel</button>
+        <button class="btn btn-primary" type="submit" id="unit-save">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
