@@ -36,6 +36,8 @@
   <!-- LocalBusiness structured data is generated from content.js by js/main.js -->
   <script src="content.js" defer></script>
   <script src="js/main.js" defer></script>
+  <script src="js/units.js" defer></script>
+  <script src="js/booking.js" defer></script>
   <script src="js/starfield.js" defer></script>
 </head>
 <body>
@@ -92,9 +94,27 @@
         <header class="section-head">
           <p class="eyebrow">Our fleet</p>
           <h2 id="rentals-title">Choose Your Jumper</h2>
-          <p>Every rental includes delivery, setup, and pickup. Prices and sizes coming soon.</p>
+          <p>Every rental includes delivery, setup, and pickup. Pick your party date to see what's available.</p>
         </header>
-        <div class="card-grid" id="rental-list"><!-- built from content.js --></div>
+
+        <!-- Sticky date bar: stays at the top of the screen while browsing rentals -->
+        <div class="date-bar" id="date-bar">
+          <label class="date-bar-label" for="party-date">📅 Party date</label>
+          <input id="party-date" type="date" aria-describedby="unit-status">
+          <button class="date-clear" id="party-date-clear" type="button" hidden>Clear</button>
+        </div>
+
+        <div class="unit-filters">
+          <div class="chip-row" id="type-chips" role="group" aria-label="Filter by type"><!-- built from the rentals --></div>
+          <label class="switch">
+            <input type="checkbox" id="only-available">
+            <span class="switch-track" aria-hidden="true"></span>
+            <span>Show only available</span>
+          </label>
+        </div>
+
+        <p class="unit-status" id="unit-status" role="status" aria-live="polite">Loading rentals…</p>
+        <div class="card-grid unit-grid" id="rental-list" aria-busy="true"><!-- built by js/units.js --></div>
       </div>
     </section>
 
@@ -179,77 +199,106 @@
       </div>
     </section>
 
-    <!-- ============ BOOKING FORM ============ -->
+    <!-- ============ BOOKING ============ -->
     <section class="section section-alt" id="book" aria-labelledby="book-title">
       <div class="container narrow">
         <header class="section-head">
           <p class="eyebrow">Ready for launch?</p>
-          <h2 id="book-title">Request a Quote</h2>
-          <p>Tell us about your party and we'll confirm availability and pricing. Prefer to talk? <a data-tel href="tel:+18063822097">Call <span data-phone>(806) 382-2097</span></a>.</p>
+          <h2 id="book-title">Book Your Jumper</h2>
+          <p>Pick a rental and date and send your request. We'll confirm by phone or email. Prefer to talk? <a data-tel href="tel:+18063822097">Call <span data-phone>(806) 382-2097</span></a>.</p>
         </header>
 
-        <!-- Netlify Forms reads this form when the site is deployed (name + data-netlify).
-             To use Formspree instead, see content.js → form. -->
-        <form class="booking-form panel" id="booking-form" name="booking" method="POST"
-              data-netlify="true" netlify-honeypot="bot-field" novalidate>
-          <input type="hidden" name="form-name" value="booking">
-          <p class="visually-hidden"><label>Leave this empty: <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+        <form class="booking-form panel" id="booking-form" novalidate>
+          <p class="service-area-note" id="service-area-note">📍 We deliver to Hereford, TX and surrounding towns out to Amarillo, Olton, and Hart.</p>
+
+          <!-- Spam trap: people never see this field; bots fill it in. -->
+          <div class="hp-field" aria-hidden="true">
+            <label for="f-company">Company</label>
+            <input id="f-company" name="company" type="text" tabindex="-1" autocomplete="off">
+          </div>
 
           <div class="field-grid">
             <div class="field">
-              <label for="f-name">Your name <span class="req" aria-hidden="true">*</span></label>
-              <input id="f-name" name="name" type="text" autocomplete="name" required>
-            </div>
-            <div class="field">
-              <label for="f-phone">Phone <span class="req" aria-hidden="true">*</span></label>
-              <input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required>
-            </div>
-            <div class="field">
-              <label for="f-email">Email <span class="req" aria-hidden="true">*</span></label>
-              <input id="f-email" name="email" type="email" autocomplete="email" required>
+              <label for="f-rental">Rental <span class="req" aria-hidden="true">*</span></label>
+              <select id="f-rental" name="unit_id" required>
+                <option value="">Choose a rental…</option>
+                <!-- rentals added by js/units.js -->
+              </select>
             </div>
             <div class="field">
               <label for="f-date">Event date <span class="req" aria-hidden="true">*</span></label>
-              <input id="f-date" name="event_date" type="date" required>
+              <input id="f-date" name="event_date" type="date" required aria-describedby="f-date-help f-availability">
+              <p class="field-help" id="f-date-help">Online bookings start tomorrow. For today, please call.</p>
+            </div>
+            <p class="availability-line field-wide" id="f-availability" role="status" aria-live="polite"></p>
+
+            <div class="field">
+              <label for="f-name">Your name <span class="req" aria-hidden="true">*</span></label>
+              <input id="f-name" name="customer_name" type="text" autocomplete="name" maxlength="100" required>
+            </div>
+            <div class="field">
+              <label for="f-phone">Phone <span class="req" aria-hidden="true">*</span></label>
+              <input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="(806) 555-1234" required>
             </div>
             <div class="field field-wide">
-              <label for="f-address">Event address</label>
-              <input id="f-address" name="event_address" type="text" autocomplete="street-address" placeholder="Street address">
+              <label for="f-email">Email <span class="req" aria-hidden="true">*</span></label>
+              <input id="f-email" name="email" type="email" autocomplete="email" maxlength="200" required>
+            </div>
+            <div class="field">
+              <label for="f-address">Event address <span class="req" aria-hidden="true">*</span></label>
+              <input id="f-address" name="event_address" type="text" autocomplete="street-address" maxlength="200" placeholder="Street address" required>
             </div>
             <div class="field">
               <label for="f-town">Town <span class="req" aria-hidden="true">*</span></label>
-              <select id="f-town" name="event_town" required>
+              <select id="f-town" name="town" required>
                 <option value="">Choose a town…</option>
                 <!-- towns added from content.js -->
-                <option value="Other">Other (tell us in notes)</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="f-rental">Which rental? <span class="req" aria-hidden="true">*</span></label>
-              <select id="f-rental" name="rental" required>
-                <option value="">Choose a rental…</option>
-                <!-- rentals added from content.js -->
-                <option value="Not sure yet">Not sure yet</option>
+                <option value="Other (please confirm delivery)">Other (we'll confirm delivery)</option>
               </select>
             </div>
             <fieldset class="field field-wide">
-              <legend>Setup surface <span class="req" aria-hidden="true">*</span></legend>
+              <legend>Setup surface</legend>
               <div class="choice-row">
-                <label class="choice"><input type="radio" name="surface" value="Grass" required> Grass</label>
+                <label class="choice"><input type="radio" name="surface" value="Grass"> Grass</label>
                 <label class="choice"><input type="radio" name="surface" value="Concrete / driveway"> Concrete / driveway</label>
                 <label class="choice"><input type="radio" name="surface" value="Not sure"> Not sure</label>
               </div>
             </fieldset>
             <div class="field field-wide">
               <label for="f-notes">Notes</label>
-              <textarea id="f-notes" name="notes" rows="4" placeholder="Party times, number of kids, power outlet nearby, questions…"></textarea>
+              <textarea id="f-notes" name="notes" rows="4" maxlength="900" placeholder="Party times, number of kids, power outlet nearby, questions…"></textarea>
+            </div>
+            <div class="field field-wide">
+              <label class="check-label" for="f-terms">
+                <input id="f-terms" name="terms_accepted" type="checkbox" required>
+                <span>I agree to the <a href="terms.html" target="_blank" rel="noopener">Rental Terms</a> and <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>. <span class="req" aria-hidden="true">*</span></span>
+              </label>
             </div>
           </div>
 
-          <p class="form-hint"><span class="req" aria-hidden="true">*</span> Required</p>
-          <button class="btn btn-primary btn-lg btn-block" type="submit">🚀 Send Request</button>
+          <p class="form-hint"><span class="req" aria-hidden="true">*</span> Required. Your booking is <strong>pending</strong> until we confirm it.</p>
+          <button class="btn btn-primary btn-lg btn-block" type="submit" id="booking-submit">🚀 Request Booking</button>
           <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
         </form>
+
+        <!-- Shown after a successful booking -->
+        <div class="panel booking-confirmation" id="booking-confirmation" hidden tabindex="-1" aria-labelledby="confirm-title">
+          <p class="confirm-icon" aria-hidden="true">🚀</p>
+          <h3 id="confirm-title">Booking request received!</h3>
+          <p>Thanks, <strong id="c-name"></strong>! Your request is in orbit.</p>
+          <dl class="confirm-details">
+            <div><dt>Booking #</dt><dd id="c-ref"></dd></div>
+            <div><dt>Rental</dt><dd id="c-unit"></dd></div>
+            <div><dt>Date</dt><dd id="c-date"></dd></div>
+            <div><dt>Where</dt><dd id="c-where"></dd></div>
+            <div><dt>Status</dt><dd><span class="status-pill is-pending">Pending</span></dd></div>
+          </dl>
+          <p id="c-next"></p>
+          <div class="btn-row">
+            <button class="btn btn-secondary" type="button" id="book-another">Book another rental</button>
+            <a class="btn btn-secondary" data-tel href="tel:+18063822097">📞 Call us</a>
+          </div>
+        </div>
       </div>
     </section>
   </main>
@@ -280,7 +329,7 @@
       </div>
     </div>
     <div class="container footer-bottom">
-      <p>© <span id="year">2026</span> Astro Jumpers. All rights reserved.</p>
+      <p>© <span id="year">2026</span> Astro Jumpers. All rights reserved. · <a href="terms.html">Rental Terms</a> · <a href="privacy.html">Privacy Policy</a></p>
       <a href="#top">Back to top ↑</a>
     </div>
   </footer>
