@@ -45,6 +45,7 @@ window.SITE = {
   ],
 
   /* ---------- Service area ----------
+     Hereford and surrounding towns out to Amarillo, Olton, and Hart.
      Add a town by adding a new "Name" to the list. It shows up in the
      Service Area section, the footer, and the booking form automatically. */
   towns: [
@@ -171,13 +172,10 @@ window.SITE = {
   ],
 
   /* ---------- Booking form ----------
-     provider: "none"      → form shows a thank-you message but sends nothing (for testing)
-               "netlify"   → uses Netlify Forms (works automatically when hosted on Netlify)
-               "formspree" → set formspreeEndpoint to your form's URL, e.g. "https://formspree.io/f/abcd1234" */
-  form: {
-    provider: "none",
-    formspreeEndpoint: "",
-    successMessage: "Thanks! Your request is in orbit. We'll reach out soon to confirm availability and pricing.",
-    errorMessage: "Hmm, something went wrong sending your request. Please call or text us instead."
+     Bookings are saved in Supabase (see supabase/ and the README).
+     serviceArea is shown on the booking form; the town dropdown uses "towns" above. */
+  booking: {
+    serviceArea: "We deliver to Hereford, TX and surrounding towns out to Amarillo, Olton, and Hart.",
+    confirmWithin: "24 hours"   // shown on the confirmation screen
   }
 };

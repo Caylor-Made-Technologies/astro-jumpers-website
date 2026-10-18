@@ -185,61 +185,6 @@
     window.matchMedia("(min-width: 960px)").addEventListener("change", function (mq) { if (mq.matches) setOpen(false); });
   }
 
-  /* ---------- Booking form ---------- */
-  function setupForm() {
-    var form = $("#booking-form"), status = $("#form-status");
-    var town = $("#f-town");
-    var townOther = town.lastElementChild;
-    S.towns.forEach(function (t) { town.insertBefore(el("option", { value: t, text: t }), townOther); });
-    // Rental options are added by js/units.js once the rentals load.
-
-    // No booking dates in the past.
-    var today = new Date();
-    today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
-    $("#f-date").min = today.toISOString().slice(0, 10);
-
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      status.className = "form-status";
-      if (!form.checkValidity()) {
-        form.classList.add("was-validated");
-        var firstBad = form.querySelector(":invalid");
-        if (firstBad) firstBad.focus();
-        status.textContent = "Please fill in the highlighted fields.";
-        status.classList.add("is-error");
-        return;
-      }
-
-      var cfg = S.form, data = new FormData(form);
-      var btn = form.querySelector("[type=submit]");
-      btn.disabled = true;
-
-      var request;
-      if (cfg.provider === "netlify") {
-        request = fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams(data).toString() });
-      } else if (cfg.provider === "formspree" && cfg.formspreeEndpoint) {
-        request = fetch(cfg.formspreeEndpoint, { method: "POST", body: data, headers: { "Accept": "application/json" } });
-      } else {
-        // provider "none": nothing is sent. Handy for testing the layout.
-        console.info("Form not connected yet. Would have sent:", Object.fromEntries(data));
-        request = Promise.resolve({ ok: true });
-      }
-
-      request.then(function (res) {
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        form.reset();
-        form.classList.remove("was-validated");
-        status.textContent = cfg.successMessage;
-        status.classList.add("is-success");
-      }).catch(function (err) {
-        console.error(err);
-        status.textContent = cfg.errorMessage + " " + B.phone.display;
-        status.classList.add("is-error");
-      }).then(function () { btn.disabled = false; });
-    });
-  }
-
   /* ---------- Placeholder highlighting ---------- */
   // Adds a dashed outline to any text that still says [PLACEHOLDER] or TBD, so nothing slips through.
   function markPlaceholders() {
@@ -261,6 +206,5 @@
   renderFooter();
   renderSchema();
   setupMenu();
-  setupForm();
   markPlaceholders();
 })();

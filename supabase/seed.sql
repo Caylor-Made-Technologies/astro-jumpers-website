@@ -20,13 +20,13 @@ select * from (values
 ) as v(name, type, size, price, description, photo_url)
 where not exists (select 1 from public.units);
 
--- Two sample bookings next Saturday so you can see the "On a Mission" badge.
--- Delete them from the Bookings tab in admin.html whenever you like.
-insert into public.bookings (unit_id, event_date, customer_name, notes)
+-- Two sample CONFIRMED bookings next Saturday so you can see "On a Mission".
+-- Cancel or delete them from the Bookings tab in admin.html whenever you like.
+insert into public.bookings (unit_id, event_date, customer_name, phone, email, event_address, town, notes, status, terms_accepted)
 select u.id,
-       current_date + ((6 - extract(dow from current_date)::int + 7) % 7),
-       'Sample booking',
-       'Placeholder: delete me'
+       public.local_today() + (((6 - extract(dow from public.local_today())::int + 6) % 7) + 1),
+       'Sample Customer', '8060000000', 'sample@example.com', '123 Sample St', 'Hereford',
+       'Placeholder booking: delete me', 'confirmed', true
 from public.units u
 where u.name in ('Rocket Castle Bouncer', 'Saturn Splash Water Slide')
-on conflict (unit_id, event_date) do nothing;
+  and not exists (select 1 from public.bookings b where b.unit_id = u.id and b.customer_name = 'Sample Customer');

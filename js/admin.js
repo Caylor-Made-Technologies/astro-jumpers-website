@@ -55,6 +55,15 @@
   }
   var money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2, minimumFractionDigits: 0 });
   function priceText(p) { return p === null || p === undefined ? "Price TBD" : money.format(Number(p)) + "/day"; }
+  function addDays(iso, n) {
+    var p = iso.split("-"), d = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2] + n));
+    return d.toISOString().slice(0, 10);
+  }
+  function prettyPhone(d) { return d && d.length === 10 ? "(" + d.slice(0, 3) + ") " + d.slice(3, 6) + "-" + d.slice(6) : (d || ""); }
+  function digitsOf(phone) {
+    var d = String(phone || "").replace(/\D/g, "");
+    return d.length === 11 && d.charAt(0) === "1" ? d.slice(1) : d;
+  }
 
   function friendlyError(err) {
     var msg = (err && (err.message || err.error_description)) || String(err);
@@ -94,8 +103,7 @@
         return;
       }
       show("app-view");
-      loadUnits();
-      loadBookings();
+      loadUnits().then(function () { loadBookings(); loadBlocks(); });
     });
   }
 
@@ -138,7 +146,7 @@
   });
 
   /* ---------- Tabs ---------- */
-  var tabs = [$("tab-units"), $("tab-bookings")];
+  var tabs = [$("tab-units"), $("tab-bookings"), $("tab-blocks")];
   function selectTab(tab) {
     tabs.forEach(function (t) {
       var on = t === tab;
@@ -341,70 +349,186 @@
   });
 
   /* ---------- Bookings ---------- */
+  function unitName(id) {
+    var u = units.filter(function (x) { return x.id === id; })[0];
+    return u ? u.name : "(removed rental)";
+  }
+
   function renderUnitOptions() {
-    var sel = $("b-unit"), keep = sel.value;
-    sel.textContent = "";
-    sel.appendChild(el("option", { value: "", text: "Choose a rental…" }));
-    units.forEach(function (u) {
-      sel.appendChild(el("option", { value: u.id, text: u.name + (u.active ? "" : " (hidden)") }));
+    [["b-unit", "Choose a rental…"], ["k-unit", "All rentals"]].forEach(function (pair) {
+      var sel = $(pair[0]), keep = sel.value;
+      sel.textContent = "";
+      sel.appendChild(el("option", { value: "", text: pair[1] }));
+      units.forEach(function (u) {
+        sel.appendChild(el("option", { value: u.id, text: u.name + (u.active ? "" : " (hidden)") }));
+      });
+      sel.value = keep;
     });
-    sel.value = keep;
+  }
+
+  function updatePendingCount() {
+    sb.from("bookings").select("id", { count: "exact", head: true })
+      .eq("status", "pending").gte("event_date", todayISO()).then(function (res) {
+        var badge = $("pending-count");
+        badge.hidden = !res.count;
+        badge.textContent = res.count ? String(res.count) : "";
+        badge.setAttribute("aria-label", res.count + " pending");
+      });
+  }
+
+  function bookingCard(b) {
+    var ref = b.id.replace(/-/g, "").slice(0, 8).toUpperCase();
+    var actions = [];
+    if (b.status === "pending") actions.push(el("button", { class: "btn btn-sm btn-primary", type: "button", "data-act": "confirmed", "data-id": b.id, text: "✅ Confirm" }));
+    if (b.status !== "cancelled") actions.push(el("button", { class: "btn btn-sm btn-secondary", type: "button", "data-act": "cancelled", "data-id": b.id, text: "Cancel" }));
+    var contact = [];
+    if (b.phone) contact.push(el("a", { href: "tel:+1" + b.phone, text: "📞 " + prettyPhone(b.phone) }));
+    if (b.email) contact.push(el("a", { href: "mailto:" + b.email, text: "✉️ " + b.email }));
+    var where = [b.event_address, b.town].filter(Boolean).join(", ");
+    return el("li", { class: "booking-card is-" + b.status }, [
+      el("div", { class: "booking-card-head" }, [
+        el("p", { class: "admin-row-title", text: unitName(b.unit_id) }),
+        el("span", { class: "status-pill is-" + b.status, text: b.status.charAt(0).toUpperCase() + b.status.slice(1) })
+      ]),
+      el("p", { class: "booking-name", text: (b.customer_name || "No name") + " · #" + ref }),
+      contact.length ? el("p", { class: "booking-contact" }, contact) : null,
+      where ? el("p", { class: "muted small", text: "📍 " + where }) : null,
+      b.notes ? el("p", { class: "booking-notes", text: b.notes }) : null,
+      el("p", { class: "muted small", text: "Received " + new Date(b.created_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) }),
+      actions.length ? el("div", { class: "admin-row-actions" }, actions) : null
+    ]);
   }
 
   function loadBookings() {
     $("b-date").min = todayISO();
-    return sb.from("bookings").select("id, event_date, customer_name, notes, units(name)")
-      .gte("event_date", todayISO()).order("event_date").then(function (res) {
-        var list = $("bookings-list");
+    updatePendingCount();
+    var filter = $("booking-filter").value;
+    var q = sb.from("bookings")
+      .select("id, unit_id, event_date, customer_name, phone, email, event_address, town, notes, status, created_at")
+      .gte("event_date", todayISO()).order("event_date").order("created_at");
+    q = filter === "active" ? q.in("status", ["pending", "confirmed"]) : q.eq("status", filter);
+    return q.then(function (res) {
+      var list = $("bookings-list");
+      list.textContent = "";
+      if (res.error) { list.appendChild(el("p", { class: "muted", text: friendlyError(res.error) })); return; }
+      if (!res.data.length) { list.appendChild(el("p", { class: "muted admin-empty", text: "No upcoming bookings here." })); return; }
+      var groups = {};
+      res.data.forEach(function (b) { (groups[b.event_date] = groups[b.event_date] || []).push(b); });
+      Object.keys(groups).forEach(function (date) {
+        list.appendChild(el("section", { class: "booking-group" }, [
+          el("h3", { class: "booking-date", text: prettyDate(date) }),
+          el("ul", { class: "admin-list" }, groups[date].map(bookingCard))
+        ]));
+      });
+    });
+  }
+
+  $("booking-filter").addEventListener("change", loadBookings);
+
+  $("bookings-list").addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-act]");
+    if (!btn) return;
+    var next = btn.getAttribute("data-act");
+    if (next === "cancelled" && !confirm("Cancel this booking? The date will open up for others.")) return;
+    btn.disabled = true;
+    sb.from("bookings").update({ status: next }).eq("id", btn.getAttribute("data-id")).then(function (res) {
+      if (res.error) { toast(friendlyError(res.error), true); btn.disabled = false; return; }
+      toast(next === "confirmed" ? "Confirmed! The customer is being emailed." : "Booking cancelled.");
+      loadBookings();
+    });
+  });
+
+  $("booking-add-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var date = $("b-date").value, unitId = $("b-unit").value;
+    var phone = digitsOf($("b-phone").value), email = $("b-email").value.trim();
+    if (!date || !unitId) { setStatus("booking-status", "Pick a date and a rental.", "error"); return; }
+    if (phone && phone.length !== 10) { setStatus("booking-status", "Phone should be 10 digits (or leave it blank).", "error"); return; }
+    setStatus("booking-status", "Saving…");
+    sb.from("bookings").insert({
+      unit_id: unitId, event_date: date, status: "confirmed",
+      customer_name: $("b-name").value.trim() || null,
+      phone: phone || null,
+      email: email || null,
+      event_address: $("b-address").value.trim() || null,
+      notes: $("b-notes").value.trim() || null
+    }).then(function (res) {
+      if (res.error) {
+        setStatus("booking-status", res.error.code === "23505" ? "That rental already has a booking on that date." : friendlyError(res.error), "error");
+        return;
+      }
+      setStatus("booking-status", "Booked! " + unitName(unitId) + " shows “On a Mission” on " + prettyDate(date) + ".", "success");
+      ["b-name", "b-phone", "b-email", "b-address", "b-notes", "b-unit"].forEach(function (id) { $(id).value = ""; });
+      loadBookings();
+    });
+  });
+
+  /* ---------- Blocked dates ---------- */
+  var blocks = [];
+  function loadBlocks() {
+    $("k-from").min = todayISO();
+    return sb.from("blocked_dates").select("id, unit_id, block_date, reason")
+      .gte("block_date", todayISO()).order("block_date").then(function (res) {
+        var list = $("blocks-list");
         list.textContent = "";
         if (res.error) { list.appendChild(el("li", { class: "muted", text: friendlyError(res.error) })); return; }
-        if (!res.data.length) { list.appendChild(el("li", { class: "muted admin-empty", text: "No upcoming bookings." })); return; }
-        res.data.forEach(function (b) {
-          var unitName = b.units ? b.units.name : "(deleted rental)";
+        blocks = res.data;
+        if (!blocks.length) { list.appendChild(el("li", { class: "muted admin-empty", text: "No blocked dates." })); return; }
+        blocks.forEach(function (k) {
+          var what = k.unit_id ? unitName(k.unit_id) : "All rentals";
           list.appendChild(el("li", { class: "admin-row" }, [
-            el("div", { class: "admin-date" }, [el("span", { text: prettyDate(b.event_date) })]),
+            el("div", { class: "admin-date" }, [el("span", { text: prettyDate(k.block_date) })]),
             el("div", { class: "admin-row-main" }, [
-              el("p", { class: "admin-row-title", text: unitName }),
-              el("p", { class: "muted small", text: [b.customer_name, b.notes].filter(Boolean).join(" · ") || "No details" })
+              el("p", { class: "admin-row-title", text: "🛠️ " + what }),
+              el("p", { class: "muted small", text: k.reason || "No reason given" })
             ]),
             el("div", { class: "admin-row-actions" }, [
-              el("button", { class: "btn btn-sm btn-secondary", type: "button", "data-booking": b.id,
-                "data-label": unitName + " on " + prettyDate(b.event_date), "aria-label": "Remove booking for " + unitName + " on " + prettyDate(b.event_date), text: "Remove" })
+              el("button", { class: "btn btn-sm btn-secondary", type: "button", "data-block": k.id,
+                "aria-label": "Unblock " + what + " on " + prettyDate(k.block_date), text: "Unblock" })
             ])
           ]));
         });
       });
   }
 
-  $("booking-add-form").addEventListener("submit", function (e) {
+  $("block-form").addEventListener("submit", function (e) {
     e.preventDefault();
-    var date = $("b-date").value, unitId = $("b-unit").value;
-    if (!date || !unitId) { setStatus("booking-status", "Pick a date and a rental.", "error"); return; }
-    setStatus("booking-status", "Saving…");
-    sb.from("bookings").insert({
-      unit_id: unitId, event_date: date,
-      customer_name: $("b-name").value.trim() || null,
-      notes: $("b-notes").value.trim() || null
-    }).then(function (res) {
-      if (res.error) {
-        setStatus("booking-status", res.error.code === "23505" ? "That rental is already booked on that date." : friendlyError(res.error), "error");
-        return;
-      }
-      setStatus("booking-status", "Booked! It now shows “On a Mission” on " + prettyDate(date) + ".", "success");
-      $("b-name").value = ""; $("b-notes").value = ""; $("b-unit").value = "";
-      loadBookings();
+    var from = $("k-from").value, to = $("k-to").value || from, unitId = $("k-unit").value || null;
+    if (!from) { setStatus("block-status", "Pick a start date.", "error"); return; }
+    if (to < from) { setStatus("block-status", "The end date is before the start date.", "error"); return; }
+    var days = [];
+    for (var d = from; d <= to && days.length <= 31; d = addDays(d, 1)) days.push(d);
+    if (days.length > 31) { setStatus("block-status", "Block up to 31 days at a time.", "error"); return; }
+    var already = blocks.filter(function (k) { return k.unit_id === unitId; }).map(function (k) { return k.block_date; });
+    var reason = $("k-reason").value.trim() || null;
+    var rows = days.filter(function (day) { return already.indexOf(day) === -1; })
+      .map(function (day) { return { unit_id: unitId, block_date: day, reason: reason }; });
+    if (!rows.length) { setStatus("block-status", "Those dates are already blocked.", "success"); return; }
+    setStatus("block-status", "Saving…");
+    sb.from("blocked_dates").insert(rows).then(function (res) {
+      if (res.error) { setStatus("block-status", friendlyError(res.error), "error"); return; }
+      // Heads-up if bookings already exist on those dates (blocking doesn't cancel them).
+      var q = sb.from("bookings").select("id", { count: "exact", head: true })
+        .in("status", ["pending", "confirmed"]).gte("event_date", from).lte("event_date", to);
+      if (unitId) q = q.eq("unit_id", unitId);
+      q.then(function (c) {
+        var msg = "Blocked " + rows.length + (rows.length === 1 ? " day." : " days.");
+        if (c.count) msg += " Heads up: " + c.count + " existing booking" + (c.count === 1 ? " is" : "s are") + " on those dates. Check the Bookings tab.";
+        setStatus("block-status", msg, c.count ? "error" : "success");
+      });
+      $("k-to").value = ""; $("k-reason").value = "";
+      loadBlocks();
     });
   });
 
-  $("bookings-list").addEventListener("click", function (e) {
-    var btn = e.target.closest("[data-booking]");
+  $("blocks-list").addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-block]");
     if (!btn) return;
-    if (!confirm("Remove the booking for " + btn.getAttribute("data-label") + "?")) return;
     btn.disabled = true;
-    sb.from("bookings").delete().eq("id", btn.getAttribute("data-booking")).then(function (res) {
+    sb.from("blocked_dates").delete().eq("id", btn.getAttribute("data-block")).then(function (res) {
       if (res.error) { toast(friendlyError(res.error), true); btn.disabled = false; return; }
-      toast("Booking removed.");
-      loadBookings();
+      toast("Date unblocked.");
+      loadBlocks();
     });
   });
 })();

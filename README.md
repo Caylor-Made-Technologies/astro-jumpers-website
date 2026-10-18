@@ -6,13 +6,17 @@ Plain HTML, CSS, and JavaScript. No frameworks, no build step, no `npm install`.
 
 ```
 index.html          Page layout + SEO tags (title, description, social preview)
-admin.html          ★ Owner's page: add/edit/hide rentals, upload photos, mark booked dates
+admin.html          ★ Owner's page: bookings (confirm/cancel), blocked dates, rentals, photos
+privacy.html        Privacy Policy (template; fill in the placeholders)
+terms.html          Rental Terms (template; fill in the placeholders)
 content.js          ★ Editable content: towns, fees, FAQ, reviews, contact, hours + Supabase settings
 supabase/           Database setup: schema.sql (tables + security rules), seed.sql (10 placeholder rentals)
+supabase/functions/ booking-notify: the Edge Function that sends booking emails
 css/styles.css      Look and feel. Colors + fonts are CSS variables at the top
 css/admin.css       Extra styles for the admin page
 js/main.js          Builds the page from content.js; menu, FAQ, and form behavior
 js/units.js         Rental cards, party-date availability, type filters
+js/booking.js       The booking form (validation, spam trap, confirmation screen)
 js/admin.js         The admin page
 js/vendor/          Supabase's JavaScript library (used by the admin page only)
 js/starfield.js     Twinkling star background
@@ -20,7 +24,7 @@ assets/             Logo, favicons, social image, placeholder rental images, gal
 tools/make-icons.py One-time helper that crops the logo and makes favicons (only rerun if the logo changes)
 ```
 
-Rentals live in a free **Supabase** database so the owner can manage them from a phone at `/admin.html`. Everything else is edited in `content.js`.
+Rentals and bookings live in a free **Supabase** database. Customers book on the site; the owner manages everything from a phone at `/admin.html`. Everything else is edited in `content.js`.
 
 ---
 
@@ -76,42 +80,75 @@ Edit `business.phone` (both `display` and `dial`), `business.email`, and `social
 
 ## Rentals & bookings (Supabase)
 
-### One-time setup (about 15 minutes)
-1. **Create a free project** at [supabase.com](https://supabase.com) → *New project*. Pick any name and a strong database password (save it somewhere; you won't need it day to day).
-2. **Create the tables:** in the project, open **SQL Editor → New query**, paste everything from `supabase/schema.sql`, and click **Run**. Then do the same with `supabase/seed.sql` to add the 10 placeholder rentals.
-3. **Create the owner's login:** **Authentication → Users → Add user → Create new user**. Enter the email and a password, and tick *Auto Confirm User*.
-4. **Make that login an admin:** back in **SQL Editor**, run (with the real email):
+### How it works
+- **Customers** pick a party date. Rentals booked (or blocked) that day show **🚀 On a Mission** and can't be booked; the rest show **✅ Ready for Launch** with a **Book** button.
+- The **booking form** checks everything before sending (required fields, a real 10-digit phone, a valid email, tomorrow or later, up to a year ahead, terms accepted) and shows a **confirmation screen** with a booking number. Every new booking starts as **pending**.
+- The **owner** gets an email for each new booking, then confirms or cancels it in `admin.html`. The customer gets a "booking received" email, then a "you're confirmed" email when the owner confirms.
+- **One active booking per rental per date** is enforced by the database itself (a unique index on pending + confirmed bookings), so double-booking is impossible even if two people click at the same moment. Cancelling a booking frees the date.
+
+### Privacy & security (all enforced in `supabase/schema.sql`)
+- Row-level security is **on for every table**.
+- Visitors can **only** read active rentals and call `unit_availability()`, which returns **rental id + date only**: never names, phones, emails, addresses, or notes.
+- Visitors can **insert** a booking (always saved as *pending*, and only these fields: rental, date, name, phone, email, address, town, notes, terms). They **can't read, edit, or delete** any booking, including their own.
+- The database re-checks every rule itself (dates, phone, email, terms, blocked dates, hidden rentals), so nobody can skip the form's checks.
+- **Spam protection:** a hidden "honeypot" field catches form bots, and the database limits each email/phone to 3 requests per hour (plus a site-wide burst limit).
+- Only a signed-in account **listed in the `admins` table** can see booking details or change anything.
+- The website only ever uses the public **anon** key. The **service role key** and email API key live only in Supabase's Edge Function secrets (environment variables), never in this repo or the browser.
+
+### One-time setup (about 30 minutes)
+1. **Create a free project** at [supabase.com](https://supabase.com) → *New project*. Save the database password somewhere safe.
+2. **Create the tables:** **SQL Editor → New query**, paste all of `supabase/schema.sql`, **Run**. Then do the same with `supabase/seed.sql` (10 placeholder rentals + 2 sample bookings).
+3. **Create the owner's login:** **Authentication → Users → Add user → Create new user** with the email and a strong password; tick *Auto Confirm User*.
+4. **Make that login an admin** (SQL Editor, with the real email):
    ```sql
    insert into public.admins (user_id)
    select id from auth.users where email = 'astrojumpersco@gmail.com';
    ```
-   Only accounts on this list can change anything, even if someone else manages to sign up.
-5. **Turn off public sign-ups** (extra safety): **Authentication → Sign In / Providers** → turn off *Allow new users to sign up*.
-6. **Password-reset links:** **Authentication → URL Configuration** → set *Site URL* to `https://caylor-made-technologies.github.io/astro-jumpers-website/` and add `https://caylor-made-technologies.github.io/astro-jumpers-website/admin.html` under *Redirect URLs*.
-7. **Connect the website:** **Project Settings → API** (or *Data API*). Copy the *Project URL* and the **anon / public** key into `content.js`:
+5. **Turn off public sign-ups:** **Authentication → Sign In / Providers** → turn off *Allow new users to sign up*.
+6. **Password-reset links:** **Authentication → URL Configuration** → *Site URL* `https://caylor-made-technologies.github.io/astro-jumpers-website/`, and add `https://caylor-made-technologies.github.io/astro-jumpers-website/admin.html` under *Redirect URLs*.
+7. **Connect the website:** **Project Settings → API**. Copy the *Project URL* and the **anon / public** key into `content.js`:
    ```js
-   supabase: {
-     url: "https://abcdefgh.supabase.co",
-     anonKey: "eyJhbGciOi..."
-   },
+   supabase: { url: "https://abcdefgh.supabase.co", anonKey: "eyJhbGciOi..." },
    ```
-   The anon key is safe to publish; the database rules in `schema.sql` decide what it can do. **Never** paste the `service_role` key into the website.
-8. Commit and push. The site now loads rentals from Supabase, and the admin page is at **/admin.html** (it isn't linked from the site, so bookmark it).
+   The anon key is meant to be public. **Never** put the `service_role` key in the website.
+8. Commit and push. Bookings now work, and the admin page is at **/admin.html** (bookmark it; it isn't linked from the site).
+
+### Email notifications (one-time, about 15 minutes)
+Emails are sent by a small Supabase **Edge Function** (`supabase/functions/booking-notify`) that runs whenever a booking is added or changed.
+
+1. **Pick an email service** (both have free plans):
+   - **Brevo** (recommended for now): works with the Gmail address. Sign up at [brevo.com](https://www.brevo.com), verify `astrojumpersco@gmail.com` as a sender (**Senders, Domains & Dedicated IPs → Senders**), and create an API key (**SMTP & API → API Keys**).
+   - **Resend**: better once you own a domain (e.g. `astrojumperstx.com`); it requires verifying that domain.
+2. **Deploy the function** with the [Supabase CLI](https://supabase.com/docs/guides/cli) from this folder:
+   ```bash
+   supabase login
+   supabase link --project-ref YOUR-PROJECT-REF
+   supabase functions deploy booking-notify --no-verify-jwt
+   ```
+   (`--no-verify-jwt` is correct here: the function checks its own secret instead.)
+3. **Set the secrets:** copy `supabase/functions/booking-notify/env.example` to `.env` in the same folder (git ignores it), fill it in, then:
+   ```bash
+   supabase secrets set --env-file supabase/functions/booking-notify/.env
+   ```
+   For `WEBHOOK_SECRET`, use a long random string (for example, run `openssl rand -hex 32`).
+4. **Connect bookings to the function:** **Database → Webhooks (Integrations → Database Webhooks) → Create a new hook**:
+   - Table: `bookings`; Events: **Insert** and **Update**
+   - Type: **Supabase Edge Functions** (or HTTP Request), function/URL: `booking-notify`, method POST
+   - Add an HTTP header: `x-webhook-secret` = the same `WEBHOOK_SECRET` value
+5. Make a test booking on the site. You should get the owner email, and the customer address gets "booking received". Confirm it in admin to get "you're confirmed". If something's off, check **Edge Functions → booking-notify → Logs**.
+
+An email failure never blocks or undoes a booking; it just shows up in the function's logs.
 
 ### Using the admin page
-- **Rentals tab:** *＋ Add rental*, *Edit*, and *Hide/Show*. Hidden rentals disappear from the website but stay in the list so you can bring them back. Leave the price blank to show "Price TBD".
-- **Photos:** tap *Upload photo* in the editor. Phone photos are shrunk to about 1600 px wide automatically, so they load fast. Landscape (4:3) photos look best. Replacing a photo doesn't delete the old file; you can clean those up in Supabase → Storage → `unit-photos` if you ever want to.
-- **Bookings tab:** pick a date and a rental to mark it booked. On that date the rental shows **🚀 On a Mission** and moves to the bottom of the list. Customer name and notes are private (only signed-in admins can read them). Remove a booking if plans change.
-- `seed.sql` adds 2 sample bookings for the next Saturday so you can see the "On a Mission" look. Remove them from the Bookings tab.
+- **Bookings tab:** upcoming bookings grouped by date, with a yellow badge counting pending ones. **✅ Confirm** emails the customer; **Cancel** frees the date. Tap a phone number or email to call or write. Use *Add a phone booking* for bookings you take by phone (saved as confirmed; same-day is allowed here).
+- **Blocked tab:** block one day or a range (up to 31 days) for **all rentals** or one rental, for maintenance or days off. Blocked rentals show "On a Mission" and can't be booked online. It warns you if bookings already exist on those dates.
+- **Rentals tab:** *＋ Add rental*, *Edit*, *Hide/Show*, and photo upload (phone photos are shrunk automatically). Hidden rentals disappear from the site but stay in the list.
+- The 2 sample bookings from `seed.sql` (next Saturday) are just for show: cancel them in the Bookings tab.
 
-### How the public rentals section works
-- Parents pick a **party date** in the bar that sticks to the top of the screen while they scroll the rentals. Available rentals are listed first; booked ones drop to the bottom with "🚀 On a Mission".
-- **Filter chips** (All, Bounce House, Combo, …) are built from the rental types you use in admin, so a new type gets its own chip automatically.
-- **Show only available** hides booked rentals for the chosen date.
-- Choosing a date also fills in the date on the quote form, and *Request This One* fills in the rental.
-- If Supabase can't be reached, the site quietly shows the backup list from `content.js`, so the page never breaks.
-
-Good to know: free Supabase projects pause after about a week with no activity. If that happens, the site shows the backup list until you open the project in the Supabase dashboard and click *Restore*.
+### Good to know
+- Free Supabase projects pause after about a week with no activity. If that happens, the site shows the backup rental list from `content.js` and booking is unavailable until you click *Restore* in the Supabase dashboard.
+- "Today" for booking rules means **Central Time** (Hereford), not the server's clock.
+- To change the service-area sentence on the booking form, edit `booking.serviceArea` in `content.js`.
 
 ## Things that live in `index.html` (search engines read these directly)
 
@@ -134,29 +171,6 @@ At the top of `css/styles.css`, the `:root { ... }` block holds every color (`--
 
 ---
 
-## Connecting the booking form
-
-The form is front-end only until you pick a service. Set this in `content.js`:
-
-### Option A: Netlify Forms (easiest if hosting on Netlify)
-```js
-form: { provider: "netlify", ... }
-```
-That's it. Netlify detects the form when you deploy (the `data-netlify="true"` attribute is already on it). Submissions appear in the Netlify dashboard under **Forms**, and you can turn on email notifications there (*Forms → Form notifications*). A hidden spam trap is already built in.
-
-### Option B: Formspree (works on any host, including GitHub Pages)
-1. Make a free form at [formspree.io](https://formspree.io) and copy its endpoint, like `https://formspree.io/f/abcd1234`.
-2. In `content.js`:
-```js
-form: { provider: "formspree", formspreeEndpoint: "https://formspree.io/f/abcd1234", ... }
-```
-
-While `provider` is `"none"`, the form shows the thank-you message but **doesn't send anything**.
-
-Fields sent: `name`, `phone`, `email`, `event_date`, `event_address`, `event_town`, `rental`, `surface`, `notes`.
-
----
-
 ## Deploying (free)
 
 ### Netlify
@@ -170,7 +184,6 @@ Fields sent: `name`, `phone`, `email`, `event_date`, `event_address`, `event_tow
 1. On GitHub: **Settings → Pages → Build and deployment → Source: Deploy from a branch**.
 2. Branch: `main`, folder: `/ (root)` → **Save**.
 3. The site appears at `https://<your-account>.github.io/astro-jumpers-website/` in a minute or two.
-   Use Formspree for the form here (Netlify Forms only works on Netlify).
 
 The site's address is already set to the GitHub Pages URL above. If you switch to Netlify or a custom domain, update it in `index.html` and `content.js`.
 
@@ -180,11 +193,13 @@ The site's address is already set to the GitHub Pages URL above. If you switch t
 - [x] Real phone and email
 - [ ] Real Facebook and Instagram links (`content.js`)
 - [ ] Supabase set up (see **Rentals & bookings**) and owner can sign in to `admin.html`
+- [ ] Public sign-ups turned off in Supabase
 - [ ] Real rentals, prices, and photos added in admin; placeholder rentals hidden
-- [ ] Sample bookings removed
+- [ ] Sample bookings cancelled
 - [ ] Delivery fees, deposit and cancellation terms in the FAQ
 - [ ] Safety text reviewed (match the manufacturer's rules and your insurance)
 - [ ] Real reviews (with permission)
-- [ ] Form provider connected and a test submission received
+- [ ] Email notifications set up and a test booking received (owner + customer emails)
+- [ ] Rental Terms and Privacy Policy placeholders filled in and reviewed
 - [x] Web address set (GitHub Pages; update if you get a custom domain)
 - [ ] No more yellow dashed outlines on the page
