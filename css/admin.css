@@ -98,3 +98,33 @@ code { background: var(--space-900); padding: 2px 6px; border-radius: 6px; color
   }
   .photo-row { grid-template-columns: 220px 1fr; }
 }
+
+/* ---------- Bookings ---------- */
+.admin-tab { font-size: 1rem; padding: 0 6px; }
+.tab-count {
+  display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; margin-left: 4px;
+  border-radius: 999px; background: var(--yellow-300); color: var(--ink); font: 800 .8rem var(--font-body); vertical-align: 2px;
+}
+.filter-label { font-weight: 800; }
+#booking-filter { flex: 1; min-width: 0; }
+.booking-groups { display: grid; gap: 20px; margin-bottom: 24px; }
+.booking-date { font-size: 1.15rem; color: var(--sky-300); margin: 0 0 8px; }
+.booking-card {
+  display: grid; gap: 6px; padding: 14px; background: var(--surface);
+  border: 1px solid var(--border); border-left: 5px solid var(--yellow-300); border-radius: var(--radius);
+}
+.booking-card.is-confirmed { border-left-color: var(--success); }
+.booking-card.is-cancelled { border-left-color: var(--space-600); opacity: .75; }
+.booking-card p { margin: 0; }
+.booking-card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.booking-name { font-weight: 700; }
+.booking-contact { display: flex; flex-wrap: wrap; gap: 6px 16px; }
+.booking-contact a { font-weight: 700; overflow-wrap: anywhere; min-height: 32px; display: inline-flex; align-items: center; }
+.booking-notes { white-space: pre-wrap; background: var(--space-900); padding: 8px 10px; border-radius: 8px; font-size: .95rem; }
+.booking-card .admin-row-actions { margin-top: 6px; }
+details.booking-add > summary {
+  cursor: pointer; font: 600 1.15rem var(--font-display); color: var(--white); min-height: 44px;
+  display: flex; align-items: center; list-style: none;
+}
+details.booking-add > summary::-webkit-details-marker { display: none; }
+details.booking-add[open] > summary { margin-bottom: 8px; }

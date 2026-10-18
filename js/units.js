@@ -1,4 +1,5 @@
 /* Astro Jumpers: rental cards with a party-date availability check.
+   Also shares rentals + availability with js/booking.js through window.AstroUnits.
    Rentals come from Supabase (managed in admin.html). If Supabase isn't set up
    or can't be reached, the backup list in content.js (fallbackUnits) is shown.
    The public page talks to Supabase with two plain fetch() calls, so phones
@@ -82,10 +83,11 @@
   function loadBooked(date) {
     if (!hasSupabase) return Promise.resolve(new Set());   // backup list has no bookings
     if (!bookedCache[date]) {
-      bookedCache[date] = api("/rest/v1/rpc/booked_units", {
+      // Returns unit id + date only: the database never sends customer details here.
+      bookedCache[date] = api("/rest/v1/rpc/unit_availability", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ p_date: date })
+        body: JSON.stringify({ p_from: date, p_to: date })
       }).then(function (rows) {
         return new Set(rows.map(function (r) { return r.unit_id; }));
       }).catch(function (err) {
@@ -113,9 +115,11 @@
   }
 
   function unitCard(u, isBooked) {
+    var ready = Boolean(state.date && state.booked && !isBooked);
     var action = isBooked
-      ? el("span", { class: "btn btn-block btn-disabled", "aria-disabled": "true", text: "Booked on this date" })
-      : el("a", { class: "btn btn-primary btn-block", href: "#book", "data-unit": u.id, "aria-label": "Request the " + u.name, text: "Request This One" });
+      ? el("button", { class: "btn btn-block btn-disabled", type: "button", disabled: true, text: "🚀 On a Mission" })
+      : el("a", { class: "btn btn-primary btn-block", href: "#book", "data-unit": u.id,
+          "aria-label": "Book the " + u.name + (state.date ? " for " + prettyDate(state.date) : ""), text: "Book" });
 
     var desc = el("p", { class: "card-desc", text: u.description || "" });
     if (UI.isPlaceholder(u.description)) desc.classList.add("is-placeholder");
@@ -124,7 +128,8 @@
       el("div", { class: "card-media" }, [
         UI.photo(u.photo_url, u.name, "1200 x 900", "card-img"),
         el("span", { class: "type-tag", text: u.type }),
-        isBooked ? el("span", { class: "mission-badge", text: "🚀 On a Mission" }) : null
+        isBooked ? el("span", { class: "mission-badge", text: "🚀 On a Mission" }) : null,
+        ready ? el("span", { class: "ready-badge", text: "✅ Ready for Launch" }) : null
       ]),
       el("div", { class: "card-body" }, [
         el("h3", { text: u.name }),
@@ -183,10 +188,11 @@
     state.booked = null;
     state.availabilityError = false;
     clearBtn.hidden = !date;
-    // Carry the date into the quote form if the visitor hasn't typed a different one.
+    // Carry the date into the booking form if the visitor hasn't typed a different one.
     if (formDate && (!formDate.value || formDate.value === formDate.getAttribute("data-synced"))) {
       formDate.value = date;
       formDate.setAttribute("data-synced", date);
+      formDate.dispatchEvent(new Event("change"));
     }
     render();
     if (!date) return;
@@ -224,24 +230,38 @@
     render();
   });
 
-  // "Request This One" fills in the rental (and party date) on the quote form.
+  // "Book" fills in the rental (and party date) on the booking form.
   list.addEventListener("click", function (e) {
     var link = e.target.closest("[data-unit]");
-    if (!link) return;
-    var id = link.getAttribute("data-unit");
-    var unit = state.units.filter(function (u) { return u.id === id; })[0];
-    if (unit && formRental) formRental.value = unit.name;
-    if (state.date && formDate) formDate.value = state.date;
+    if (!link || !formRental) return;
+    formRental.value = link.getAttribute("data-unit");
+    formRental.dispatchEvent(new Event("change"));
+    if (state.date && formDate) {
+      formDate.value = state.date;
+      formDate.dispatchEvent(new Event("change"));
+    }
   });
 
   /* ---------- Start ---------- */
   loadUnits().then(function (units) {
     state.units = units.slice().sort(byTypeThenName);
     if (formRental) {
-      var notSure = formRental.lastElementChild;
-      state.units.forEach(function (u) { formRental.insertBefore(el("option", { value: u.name, text: u.name }), notSure); });
+      state.units.forEach(function (u) { formRental.appendChild(el("option", { value: u.id, text: u.name + " (" + u.type + ")" })); });
     }
     renderChips();
     render();
+    document.dispatchEvent(new CustomEvent("astro:units-ready"));
   });
+
+  /* ---------- Shared with js/booking.js ---------- */
+  window.AstroUnits = {
+    hasSupabase: function () { return hasSupabase; },
+    api: api,
+    units: function () { return state.units; },
+    bookedOn: loadBooked,                         // date -> Promise<Set of unit ids>
+    forget: function (date) {                     // after a booking: re-check that date
+      delete bookedCache[date];
+      if (state.date === date) setDate(date);
+    }
+  };
 })();

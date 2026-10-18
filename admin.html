@@ -85,7 +85,8 @@
     <section id="app-view" hidden>
       <div class="admin-tabs" role="tablist" aria-label="Admin sections">
         <button class="admin-tab" role="tab" id="tab-units" aria-controls="panel-units" aria-selected="true" type="button">🚀 Rentals</button>
-        <button class="admin-tab" role="tab" id="tab-bookings" aria-controls="panel-bookings" aria-selected="false" type="button" tabindex="-1">📅 Bookings</button>
+        <button class="admin-tab" role="tab" id="tab-bookings" aria-controls="panel-bookings" aria-selected="false" type="button" tabindex="-1">📅 Bookings <span class="tab-count" id="pending-count" hidden></span></button>
+        <button class="admin-tab" role="tab" id="tab-blocks" aria-controls="panel-blocks" aria-selected="false" type="button" tabindex="-1">🛠️ Blocked</button>
       </div>
 
       <div class="admin-tabpanel" role="tabpanel" id="panel-units" aria-labelledby="tab-units">
@@ -97,32 +98,84 @@
       </div>
 
       <div class="admin-tabpanel" role="tabpanel" id="panel-bookings" aria-labelledby="tab-bookings" hidden>
-        <form class="panel booking-add" id="booking-add-form" novalidate>
-          <h2>Mark a rental as booked</h2>
-          <p class="muted">Booked rentals show "🚀 On a Mission" on that date and move to the bottom of the list.</p>
+        <div class="admin-toolbar">
+          <label class="filter-label" for="booking-filter">Show</label>
+          <select id="booking-filter">
+            <option value="active">Upcoming: pending + confirmed</option>
+            <option value="pending">Pending only (needs your answer)</option>
+            <option value="confirmed">Confirmed only</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div id="bookings-list" class="booking-groups"></div>
+
+        <details class="panel booking-add">
+          <summary>＋ Add a phone booking</summary>
+          <form id="booking-add-form" novalidate>
+            <p class="muted">For bookings you take by phone or text. They're saved as <strong>confirmed</strong>. If you add an email, the customer gets the "confirmed" email.</p>
+            <div class="field-grid">
+              <div class="field">
+                <label for="b-date">Date</label>
+                <input id="b-date" type="date" required>
+              </div>
+              <div class="field">
+                <label for="b-unit">Rental</label>
+                <select id="b-unit" required></select>
+              </div>
+              <div class="field">
+                <label for="b-name">Customer name</label>
+                <input id="b-name" type="text" autocomplete="off">
+              </div>
+              <div class="field">
+                <label for="b-phone">Phone</label>
+                <input id="b-phone" type="tel" inputmode="tel" autocomplete="off">
+              </div>
+              <div class="field">
+                <label for="b-email">Email <span class="muted">(optional)</span></label>
+                <input id="b-email" type="email" autocomplete="off">
+              </div>
+              <div class="field">
+                <label for="b-address">Event address</label>
+                <input id="b-address" type="text" autocomplete="off">
+              </div>
+              <div class="field field-wide">
+                <label for="b-notes">Notes</label>
+                <input id="b-notes" type="text" autocomplete="off" placeholder="Town, time, payment…">
+              </div>
+            </div>
+            <button class="btn btn-primary" type="submit">Add booking</button>
+            <p class="form-status" id="booking-status" role="status" aria-live="polite"></p>
+          </form>
+        </details>
+      </div>
+
+      <div class="admin-tabpanel" role="tabpanel" id="panel-blocks" aria-labelledby="tab-blocks" hidden>
+        <form class="panel booking-add" id="block-form" novalidate>
+          <h2>Block dates</h2>
+          <p class="muted">For maintenance, repairs, or days off. Blocked rentals show "🚀 On a Mission" and can't be booked online.</p>
           <div class="field-grid">
             <div class="field">
-              <label for="b-date">Date</label>
-              <input id="b-date" type="date" required>
+              <label for="k-from">From</label>
+              <input id="k-from" type="date" required>
             </div>
             <div class="field">
-              <label for="b-unit">Rental</label>
-              <select id="b-unit" required></select>
+              <label for="k-to">To <span class="muted">(optional, up to 31 days)</span></label>
+              <input id="k-to" type="date">
             </div>
             <div class="field">
-              <label for="b-name">Customer name <span class="muted">(only you see this)</span></label>
-              <input id="b-name" type="text" autocomplete="off">
+              <label for="k-unit">Rental</label>
+              <select id="k-unit"></select>
             </div>
             <div class="field">
-              <label for="b-notes">Notes <span class="muted">(only you see this)</span></label>
-              <input id="b-notes" type="text" autocomplete="off" placeholder="Town, time, phone…">
+              <label for="k-reason">Reason <span class="muted">(only you see this)</span></label>
+              <input id="k-reason" type="text" maxlength="120" placeholder="Maintenance">
             </div>
           </div>
-          <button class="btn btn-primary" type="submit">Add booking</button>
-          <p class="form-status" id="booking-status" role="status" aria-live="polite"></p>
+          <button class="btn btn-primary" type="submit">Block</button>
+          <p class="form-status" id="block-status" role="status" aria-live="polite"></p>
         </form>
-        <h2 class="admin-subhead">Upcoming bookings</h2>
-        <ul class="admin-list" id="bookings-list"></ul>
+        <h2 class="admin-subhead">Upcoming blocked dates</h2>
+        <ul class="admin-list" id="blocks-list"></ul>
       </div>
     </section>
   </main>
