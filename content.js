@@ -28,7 +28,7 @@ window.SITE = {
     logo: "assets/logo-cropped.jpg",     // big logo in the hero
     logoIcon: "assets/logo-icon.png",    // small round badge in the header/footer
     // Where the site will live once it's online (used for social sharing + Google).
-    siteUrl: "https://example.com",                                // [PLACEHOLDER]
+    siteUrl: "https://caylor-made-technologies.github.io/astro-jumpers-website",  // update if you get a custom domain
   },
 
   socials: [
