@@ -151,7 +151,8 @@ The site's address is already set to the GitHub Pages URL above. If you switch t
 ---
 
 ## Before launch checklist
-- [ ] Real phone, email, Facebook, Instagram (`content.js`)
+- [x] Real phone and email
+- [ ] Real Facebook and Instagram links (`content.js`)
 - [ ] Prices, sizes, ages, photos; set `placeholder: false` on each rental
 - [ ] Delivery fees, deposit and cancellation terms in the FAQ
 - [ ] Safety text reviewed (match the manufacturer's rules and your insurance)
