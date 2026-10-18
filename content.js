@@ -79,8 +79,8 @@ window.SITE = {
      The "anon" key is meant to be public; the database rules keep it safe.
      NEVER paste the "service_role" key here. */
   supabase: {
-    url: "",       // e.g. "https://abcdefgh.supabase.co"
-    anonKey: ""    // the long "anon public" key
+    url: "https://manbzbtoolbyrvqlxzfl.supabase.co",
+    anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1hbmJ6YnRvb2xieXJ2cWx4emZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMDQyODUsImV4cCI6MjEwNzg4MDI4NX0.aO-E5YLBMFunUbBLJ_TCOYElwzPmtuv7hgfts2Rj8J0"
   },
 
   /* Backup list: shown ONLY if Supabase isn't set up yet or can't be reached.
