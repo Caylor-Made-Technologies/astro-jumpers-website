@@ -23,8 +23,8 @@ window.SITE = {
     state: "TX",
     zip: "79045",
     // Phone: "display" is what people see; "dial" is digits only for tap-to-call.
-    phone: { display: "(806) 000-0000", dial: "+18060000000" },   // [PLACEHOLDER]
-    email: "hello@example.com",                                    // [PLACEHOLDER]
+    phone: { display: "(806) 382-2097", dial: "+18063822097" },
+    email: "astrojumpersco@gmail.com",
     logo: "assets/logo-cropped.jpg",     // big logo in the hero
     logoIcon: "assets/logo-icon.png",    // small round badge in the header/footer
     // Where the site will live once it's online (used for social sharing + Google).
