@@ -91,7 +91,7 @@ Edit `business.phone` (both `display` and `dial`), `business.email`, and `social
 
 Near the top of `index.html`:
 - `<title>` and `<meta name="description">`: what shows in Google results.
-- `og:` tags: the preview card when someone shares the link on Facebook or by text. Once the site has a real address, replace every `https://example.com` with it (in `index.html` **and** `business.siteUrl` in `content.js`).
+- `og:` tags: the preview card when someone shares the link on Facebook or by text. They currently point to the GitHub Pages address, `https://caylor-made-technologies.github.io/astro-jumpers-website/`. If you get a custom domain, replace that address everywhere it appears (in `index.html` **and** `business.siteUrl` in `content.js`).
 
 The Google "LocalBusiness" info (name, phone, towns served) is generated automatically from `content.js`.
 
@@ -146,16 +146,17 @@ Fields sent: `name`, `phone`, `email`, `event_date`, `event_address`, `event_tow
 3. The site appears at `https://<your-account>.github.io/astro-jumpers-website/` in a minute or two.
    Use Formspree for the form here (Netlify Forms only works on Netlify).
 
-After deploying, update `https://example.com` in `index.html` and `content.js` to the real address.
+The site's address is already set to the GitHub Pages URL above. If you switch to Netlify or a custom domain, update it in `index.html` and `content.js`.
 
 ---
 
 ## Before launch checklist
-- [ ] Real phone, email, Facebook, Instagram (`content.js`)
+- [x] Real phone and email
+- [ ] Real Facebook and Instagram links (`content.js`)
 - [ ] Prices, sizes, ages, photos; set `placeholder: false` on each rental
 - [ ] Delivery fees, deposit and cancellation terms in the FAQ
 - [ ] Safety text reviewed (match the manufacturer's rules and your insurance)
 - [ ] Real reviews (with permission)
 - [ ] Form provider connected and a test submission received
-- [ ] `example.com` replaced with the real web address
+- [x] Web address set (GitHub Pages; update if you get a custom domain)
 - [ ] No more yellow dashed outlines on the page
