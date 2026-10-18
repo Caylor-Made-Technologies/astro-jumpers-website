@@ -58,45 +58,6 @@
     $("#year").textContent = new Date().getFullYear();
   }
 
-  /* ---------- Rentals ---------- */
-  function renderRentals() {
-    var list = $("#rental-list");
-    S.rentals.forEach(function (r) {
-      var specs = el("dl", { class: "specs" }, [
-        el("div", {}, [el("dt", { text: "Size" }), el("dd", { text: r.size })]),
-        el("div", {}, [el("dt", { text: "Space" }), el("dd", { text: r.space })]),
-        el("div", {}, [el("dt", { text: "Ages" }), el("dd", { text: r.ages })])
-      ]);
-      var price = el("p", { class: "price" }, [
-        el("span", { class: "price-amount", text: r.price === "TBD" ? "Price TBD" : r.price }),
-        r.priceNote && r.price !== "TBD" ? el("span", { class: "price-note", text: " " + r.priceNote }) : null
-      ]);
-      var btn = el("a", { class: "btn btn-primary btn-block", href: "#book", "data-rental": r.id, text: "Request This One" });
-      btn.setAttribute("aria-label", "Request the " + r.name);
-
-      list.appendChild(el("article", { class: "card rental-card" }, [
-        el("div", { class: "card-media" }, [
-          photo(r.image, r.imageAlt || r.name, "1200 x 900", "card-img"),
-          r.placeholder ? el("span", { class: "badge", text: "Placeholder" }) : null
-        ]),
-        el("div", { class: "card-body" }, [
-          el("h3", { text: r.name }),
-          el("p", { class: "card-desc", text: r.description }),
-          specs, price, btn
-        ])
-      ]));
-    });
-
-    // "Request This One" pre-selects that rental in the booking form.
-    list.addEventListener("click", function (e) {
-      var link = e.target.closest("[data-rental]");
-      if (!link) return;
-      var id = link.getAttribute("data-rental");
-      var match = S.rentals.filter(function (r) { return r.id === id; })[0];
-      if (match) $("#f-rental").value = match.name;
-    });
-  }
-
   /* ---------- Steps, safety ---------- */
   function renderSteps() {
     var list = $("#step-list");
@@ -227,10 +188,10 @@
   /* ---------- Booking form ---------- */
   function setupForm() {
     var form = $("#booking-form"), status = $("#form-status");
-    var town = $("#f-town"), rental = $("#f-rental");
-    var townOther = town.lastElementChild, rentalOther = rental.lastElementChild;
+    var town = $("#f-town");
+    var townOther = town.lastElementChild;
     S.towns.forEach(function (t) { town.insertBefore(el("option", { value: t, text: t }), townOther); });
-    S.rentals.forEach(function (r) { rental.insertBefore(el("option", { value: r.name, text: r.name }), rentalOther); });
+    // Rental options are added by js/units.js once the rentals load.
 
     // No booking dates in the past.
     var today = new Date();
@@ -287,8 +248,10 @@
     });
   }
 
+  // Shared with js/units.js, which builds the rental cards.
+  window.AstroUI = { el: el, photo: photo, isPlaceholder: isPlaceholder };
+
   fillContact();
-  renderRentals();
   renderSteps();
   renderTowns();
   renderSafety();
