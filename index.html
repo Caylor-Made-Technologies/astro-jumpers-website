@@ -36,6 +36,7 @@
   <!-- LocalBusiness structured data is generated from content.js by js/main.js -->
   <script src="content.js" defer></script>
   <script src="js/main.js" defer></script>
+  <script src="js/units.js" defer></script>
   <script src="js/starfield.js" defer></script>
 </head>
 <body>
@@ -92,9 +93,27 @@
         <header class="section-head">
           <p class="eyebrow">Our fleet</p>
           <h2 id="rentals-title">Choose Your Jumper</h2>
-          <p>Every rental includes delivery, setup, and pickup. Prices and sizes coming soon.</p>
+          <p>Every rental includes delivery, setup, and pickup. Pick your party date to see what's available.</p>
         </header>
-        <div class="card-grid" id="rental-list"><!-- built from content.js --></div>
+
+        <!-- Sticky date bar: stays at the top of the screen while browsing rentals -->
+        <div class="date-bar" id="date-bar">
+          <label class="date-bar-label" for="party-date">📅 Party date</label>
+          <input id="party-date" type="date" aria-describedby="unit-status">
+          <button class="date-clear" id="party-date-clear" type="button" hidden>Clear</button>
+        </div>
+
+        <div class="unit-filters">
+          <div class="chip-row" id="type-chips" role="group" aria-label="Filter by type"><!-- built from the rentals --></div>
+          <label class="switch">
+            <input type="checkbox" id="only-available">
+            <span class="switch-track" aria-hidden="true"></span>
+            <span>Show only available</span>
+          </label>
+        </div>
+
+        <p class="unit-status" id="unit-status" role="status" aria-live="polite">Loading rentals…</p>
+        <div class="card-grid unit-grid" id="rental-list" aria-busy="true"><!-- built by js/units.js --></div>
       </div>
     </section>
 
