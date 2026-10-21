@@ -22,3 +22,4 @@ The full history, decisions, and next steps for this project live in the
 - Editable content goes in `content.js`; rentals and bookings live in Supabase and are managed in `admin.html`.
 - Only the public anon key belongs in the site. Never add the service role key.
 - Jonathon is usually on his phone: keep explanations short.
+- No Claude or Anthropic naming anywhere: no "Co-Authored-By: Claude" or session links in commits or PRs, no `claude/` branch names, no "Generated with Claude" text, no mentions in site files. `_config.yml` keeps this file off the live site.

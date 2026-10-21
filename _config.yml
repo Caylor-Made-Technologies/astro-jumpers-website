@@ -1,0 +1,6 @@
+# GitHub Pages: files that stay in the repo but are not published on the website.
+exclude:
+  - CLAUDE.md
+  - README.md
+  - supabase/
+  - tools/
