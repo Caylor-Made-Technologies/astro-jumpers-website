@@ -7,8 +7,8 @@ Plain HTML, CSS, and JavaScript. No frameworks, no build step, no `npm install`.
 ```
 index.html          Page layout + SEO tags (title, description, social preview)
 admin.html          ★ Owner's page: bookings (confirm/cancel), blocked dates, rentals, photos
-privacy.html        Privacy Policy (template; fill in the placeholders)
-terms.html          Rental Terms (template; fill in the placeholders)
+privacy.html        Privacy Policy (fill in the [PLACEHOLDER] parts)
+terms.html          Rental Terms, refunds, and website Terms of Service (fill in the [PLACEHOLDER] parts)
 content.js          ★ Editable content: towns, fees, FAQ, reviews, contact, hours + Supabase settings
 supabase/           Database setup: schema.sql (tables + security rules), seed.sql (10 placeholder rentals)
 supabase/functions/ booking-notify: the Edge Function that sends booking emails
@@ -20,7 +20,7 @@ js/booking.js       The booking form (validation, spam trap, confirmation screen
 js/admin.js         The admin page
 js/vendor/          Supabase's JavaScript library (used by the admin page only)
 js/starfield.js     Twinkling star background
-assets/             Logo, favicons, social image, placeholder rental images, gallery photos
+assets/             Logo, favicons, social image, fonts, placeholder rental images, gallery photos
 tools/make-icons.py One-time helper that crops the logo and makes favicons (only rerun if the logo changes)
 ```
 
@@ -131,10 +131,11 @@ Emails are sent by a small Supabase **Edge Function** (`supabase/functions/booki
    supabase secrets set --env-file supabase/functions/booking-notify/.env
    ```
    For `WEBHOOK_SECRET`, use a long random string (for example, run `openssl rand -hex 32`).
-4. **Connect bookings to the function:** **Database → Webhooks (Integrations → Database Webhooks) → Create a new hook**:
-   - Table: `bookings`; Events: **Insert** and **Update**
-   - Type: **Supabase Edge Functions** (or HTTP Request), function/URL: `booking-notify`, method POST
-   - Add an HTTP header: `x-webhook-secret` = the same `WEBHOOK_SECRET` value
+4. **Connect bookings to the function:** `schema.sql` already adds a database trigger that calls `booking-notify`. Give it the secret once (SQL Editor, with the same `WEBHOOK_SECRET` value):
+   ```sql
+   select vault.create_secret('PASTE-WEBHOOK_SECRET-HERE', 'booking_webhook_secret');
+   ```
+   (Don't also create a dashboard Database Webhook, or every email goes out twice.)
 5. Make a test booking on the site. You should get the owner email, and the customer address gets "booking received". Confirm it in admin to get "you're confirmed". If something's off, check **Edge Functions → booking-notify → Logs**.
 
 An email failure never blocks or undoes a booking; it just shows up in the function's logs.
@@ -143,12 +144,28 @@ An email failure never blocks or undoes a booking; it just shows up in the funct
 - **Bookings tab:** upcoming bookings grouped by date, with a yellow badge counting pending ones. **✅ Confirm** emails the customer; **Cancel** frees the date. Tap a phone number or email to call or write. Use *Add a phone booking* for bookings you take by phone (saved as confirmed; same-day is allowed here).
 - **Blocked tab:** block one day or a range (up to 31 days) for **all rentals** or one rental, for maintenance or days off. Blocked rentals show "On a Mission" and can't be booked online. It warns you if bookings already exist on those dates.
 - **Rentals tab:** *＋ Add rental*, *Edit*, *Hide/Show*, and photo upload (phone photos are shrunk automatically). Hidden rentals disappear from the site but stay in the list.
+- **Someone asks you to delete their info:** set the Bookings filter to *Cancelled* or *Past bookings*, find them, and tap **🗑️ Delete**. That removes the booking and their name, phone, email, and address for good. (Cancel an upcoming booking first.) The Privacy Policy promises to do this within 45 days.
 - The 2 sample bookings from `seed.sql` (next Saturday) are just for show: cancel them in the Bookings tab.
 
 ### Good to know
 - Free Supabase projects pause after about a week with no activity. If that happens, the site shows the backup rental list from `content.js` and booking is unavailable until you click *Restore* in the Supabase dashboard.
 - "Today" for booking rules means **Central Time** (Hereford), not the server's clock.
 - To change the service-area sentence on the booking form, edit `booking.serviceArea` in `content.js`.
+
+## Security, privacy, and legal (built in)
+- **Content Security Policy** in every `.html` file: the browser only runs this site's own scripts and only talks to our Supabase project. If you ever change Supabase projects, update the address in those `<meta http-equiv="Content-Security-Policy">` lines.
+- **No third parties in visitors' browsers:** fonts are hosted in `assets/fonts/`, and there's no analytics or ad tracking. That's why the site needs **no cookie banner**. If you ever add Google Analytics, a Facebook pixel, or similar, update the Privacy Policy and add a consent banner first.
+- **Secrets stay out of git:** `.gitignore` blocks `.env` files. Only the public anon key is in `content.js`.
+- **Reviews:** the Reviews section stays hidden until you add real ones in `content.js`. Only post real reviews, word for word, with the customer's OK (fake reviews break FTC rules).
+- **Booking form:** customers confirm they're 18+, agree to the Rental Terms and Privacy Policy, and agree to be contacted about the booking. The time they agreed is saved with the booking.
+- **Emails** are only about bookings (no marketing), so they don't need an unsubscribe link. Each one says why it was sent. If you ever send promotions, you'll need an unsubscribe link and the business address.
+- The admin page refuses to load inside another website's frame.
+
+### Licenses
+- Fonts: Fredoka and Nunito, SIL Open Font License (`assets/fonts/OFL-*.txt`).
+- Supabase JS library: MIT (`js/vendor/supabase-LICENSE.txt`).
+- Logo: owned by Astro Jumpers. Placeholder rental drawings were made for this site.
+- Only use rental and gallery photos you took or have permission to use (manufacturer photos usually need permission).
 
 ## Things that live in `index.html` (search engines read these directly)
 
@@ -200,6 +217,7 @@ The site's address is already set to the GitHub Pages URL above. If you switch t
 - [ ] Safety text reviewed (match the manufacturer's rules and your insurance)
 - [ ] Real reviews (with permission)
 - [ ] Email notifications set up and a test booking received (owner + customer emails)
-- [ ] Rental Terms and Privacy Policy placeholders filled in and reviewed
+- [ ] Rental Terms and Privacy Policy placeholders filled in and reviewed (deposit, cancellation, refunds, retention, email provider)
+- [ ] In Supabase **Authentication → Providers → Email**: turn on *leaked password protection* and use a long, unique admin password
 - [x] Web address set (GitHub Pages; update if you get a custom domain)
 - [ ] No more yellow dashed outlines on the page

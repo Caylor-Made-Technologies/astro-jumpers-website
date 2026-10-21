@@ -4,6 +4,17 @@
    desktop layout. Change the brand look in the :root variables below.
    ===================================================================== */
 
+/* Fonts are hosted here (not loaded from Google), so visitors' browsers don't
+   contact a third party. Both are SIL Open Font License; see assets/fonts/OFL-*.txt. */
+@font-face {
+  font-family: "Fredoka"; font-style: normal; font-weight: 300 700; font-display: swap;
+  src: url("../assets/fonts/fredoka-latin.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Nunito"; font-style: normal; font-weight: 200 1000; font-display: swap;
+  src: url("../assets/fonts/nunito-latin.woff2") format("woff2");
+}
+
 :root {
   /* ---- Brand colors (sampled from assets/logo.jpg) ---- */
   --space-900: #0b0820;   /* deepest background (footer, inputs) */
@@ -227,7 +238,7 @@ p { margin: 0 0 1em; }
 .chip:hover { border-color: var(--accent-2); }
 .chip[aria-pressed="true"] { background: var(--accent-2); border-color: var(--accent-2); color: var(--ink); }
 .chip-count { font-size: .8rem; padding: 1px 8px; border-radius: 999px; background: rgba(255, 255, 255, .12); }
-.chip[aria-pressed="true"] .chip-count { background: rgba(19, 14, 45, .2); }
+.chip[aria-pressed="true"] .chip-count { background: rgba(255, 255, 255, .4); }   /* keeps navy text above 4.5:1 */
 
 /* Toggle switch (a real checkbox underneath, so it works with keyboard + screen readers) */
 .switch { position: relative; display: inline-flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; font-weight: 700; }
@@ -485,6 +496,8 @@ textarea { resize: vertical; min-height: 110px; }
 .legal { max-width: 760px; padding-top: 40px; padding-bottom: 56px; }
 .legal h1 { margin-bottom: 16px; }
 .legal h2 { font-size: 1.4rem; margin: 32px 0 10px; color: var(--sky-300); }
+.legal h2[id] { font-size: 1.7rem; color: var(--white); margin-top: 44px; }
+.legal h3 { font-size: 1.15rem; margin: 24px 0 8px; color: var(--sky-300); }
 .legal ul { padding-left: 1.2em; }
 .legal li { margin-bottom: 6px; }
 .legal-note { padding: 12px 16px; border-radius: var(--radius-sm); background: rgba(255, 211, 77, .12); border: 1px dashed rgba(255, 211, 77, .5); color: var(--text); }

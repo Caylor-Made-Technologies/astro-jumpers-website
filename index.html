@@ -6,8 +6,12 @@
 
   <!-- SEO: edit title/description here (search engines read these before any script runs) -->
   <title>Astro Jumpers | Bounce House Rentals in Hereford &amp; Amarillo, TX</title>
-  <meta name="description" content="Astro Jumpers rents bounce houses, combo slides, water slides, and obstacle courses for parties and events in Hereford, Amarillo, and across the Texas Panhandle. Delivery and setup included.">
+  <meta name="description" content="Astro Jumpers rents bounce houses, combo slides, water slides, and obstacle courses for parties and events in Hereford, Amarillo, and across the Texas Panhandle. Delivery, setup, and pickup by our crew.">
   <meta name="theme-color" content="#130e2d">
+  <!-- Security: the browser only runs scripts and styles from this site and only talks to our Supabase project.
+       If you change Supabase projects, update the address here too (in every .html file). -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data: blob: https:; connect-src 'self' https://manbzbtoolbyrvqlxzfl.supabase.co wss://manbzbtoolbyrvqlxzfl.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <link rel="canonical" href="https://caylor-made-technologies.github.io/astro-jumpers-website/"><!-- your web address: update if you get a custom domain -->
 
   <!-- Open Graph (Facebook, iMessage, etc. link previews) -->
@@ -26,10 +30,6 @@
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
 
   <link rel="stylesheet" href="css/styles.css">
 
@@ -65,7 +65,7 @@
           <li><a href="#safety">Safety</a></li>
           <li><a href="#faq">FAQ</a></li>
           <li><a href="#gallery">Gallery</a></li>
-          <li><a href="#reviews">Reviews</a></li>
+          <li id="nav-reviews" hidden><a href="#reviews">Reviews</a></li>
         </ul>
         <a class="btn btn-primary nav-cta" href="#book">Book Now</a>
       </nav>
@@ -94,7 +94,7 @@
         <header class="section-head">
           <p class="eyebrow">Our fleet</p>
           <h2 id="rentals-title">Choose Your Jumper</h2>
-          <p>Every rental includes delivery, setup, and pickup. Pick your party date to see what's available.</p>
+          <p>We deliver, set up, and pick up every rental. Prices are per day; see <a href="#area">delivery fees</a> for your town. Pick your party date to see what's available.</p>
         </header>
 
         <!-- Sticky date bar: stays at the top of the screen while browsing rentals -->
@@ -189,7 +189,7 @@
     </section>
 
     <!-- ============ REVIEWS ============ -->
-    <section class="section" id="reviews" aria-labelledby="reviews-title">
+    <section class="section" id="reviews" aria-labelledby="reviews-title" hidden><!-- shown only when content.js has real reviews -->
       <div class="container">
         <header class="section-head">
           <p class="eyebrow">Happy astronauts</p>
@@ -271,12 +271,12 @@
             <div class="field field-wide">
               <label class="check-label" for="f-terms">
                 <input id="f-terms" name="terms_accepted" type="checkbox" required>
-                <span>I agree to the <a href="terms.html" target="_blank" rel="noopener">Rental Terms</a> and <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>. <span class="req" aria-hidden="true">*</span></span>
+                <span>I'm 18 or older, I agree to the <a href="terms.html" target="_blank" rel="noopener">Rental Terms</a> and <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>, and Astro Jumpers may call, text, or email me about this booking. <span class="req" aria-hidden="true">*</span></span>
               </label>
             </div>
           </div>
 
-          <p class="form-hint"><span class="req" aria-hidden="true">*</span> Required. Your booking is <strong>pending</strong> until we confirm it.</p>
+          <p class="form-hint"><span class="req" aria-hidden="true">*</span> Required. Your booking is <strong>pending</strong> until we confirm it. Nothing is charged online. Rental prices are per day and don't include delivery fees outside Hereford or any deposit; we'll tell you the full total before your booking is confirmed.</p>
           <button class="btn btn-primary btn-lg btn-block" type="submit" id="booking-submit">🚀 Request Booking</button>
           <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
         </form>
@@ -311,7 +311,7 @@
           <img data-logo-icon src="assets/logo-icon.png" alt="" width="48" height="48">
           <span class="brand-name">Astro Jumpers</span>
         </a>
-        <p class="muted">Bounce house &amp; inflatable rentals in <span data-content="business.city">Hereford</span>, Texas.</p>
+        <p class="muted">Bounce house &amp; inflatable rentals in <span data-content="business.city">Hereford</span>, Texas <span data-content="business.zip">79045</span>.</p>
         <ul class="social-list" id="social-list"><!-- built from content.js --></ul>
       </div>
       <div>
@@ -335,6 +335,6 @@
   </footer>
 
   <!-- Sticky tap-to-call bar on phones -->
-  <a class="call-bar" data-tel href="tel:+18063822097">📞 Call or text <span data-phone>(806) 382-2097</span></a>
+  <aside aria-label="Call us"><a class="call-bar" data-tel href="tel:+18063822097">📞 Call or text <span data-phone>(806) 382-2097</span></a></aside>
 </body>
 </html>

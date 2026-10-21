@@ -1,2 +1,7 @@
 .DS_Store
 __pycache__/
+
+# Secrets: never commit these (env.example is the safe template)
+.env
+.env.*
+*.local

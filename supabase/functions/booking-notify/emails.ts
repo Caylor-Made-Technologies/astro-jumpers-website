@@ -49,7 +49,7 @@ export function escapeHtml(s: string): string {
   return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 }
 
-function layout(title: string, rows: [string, string][], intro: string, outro: string): string {
+function layout(title: string, rows: [string, string][], intro: string, outro: string, footer = ""): string {
   const table = rows
     .filter(([, v]) => v)
     .map(([k, v]) =>
@@ -64,6 +64,7 @@ function layout(title: string, rows: [string, string][], intro: string, outro: s
     <table style="border-collapse:collapse;font-size:15px">${table}</table>
     <p style="margin-bottom:0">${outro}</p>
   </div>
+  ${footer ? `<p style="color:#6b6790;font-size:12px;line-height:1.4;text-align:center;margin:16px 8px 0">${footer}</p>` : ""}
 </div></body></html>`;
 }
 
@@ -87,6 +88,10 @@ export function planEmails(payload: WebhookPayload, unitName: string, s: Setting
     ["Date", date],
     ["Address", [b.event_address, b.town].filter(Boolean).join(", ")],
   ];
+
+  // Customer emails are about their booking only (no marketing), so no unsubscribe link is needed; say so plainly.
+  const why = `You're getting this email because you requested a booking with ${s.businessName}, Hereford, TX. ` +
+    `We only email you about your bookings.`;
 
   const isNew = payload.type === "INSERT";
   const becameConfirmed = b.status === "confirmed" &&
@@ -122,10 +127,10 @@ export function planEmails(payload: WebhookPayload, unitName: string, s: Setting
       replyTo: s.ownerEmail || undefined,
       subject: `We got your booking request! (#${ref})`,
       text: `Hi ${firstName},\n\nThanks for choosing ${s.businessName}! We received your booking request:\n\n${textBlock(details)}\n\n` +
-        `Your booking is PENDING until we confirm it. We'll reach out soon. Questions? Call or text ${s.businessPhone} or reply to this email.\n\n${s.businessName}`,
+        `Your booking is PENDING until we confirm it. We'll reach out soon. Questions? Call or text ${s.businessPhone} or reply to this email.\n\n${s.businessName}\n\n${why}`,
       html: layout("Booking request received", details,
         `Hi ${escapeHtml(firstName)}, thanks for choosing ${escapeHtml(s.businessName)}! We received your booking request.`,
-        `Your booking is <b>pending</b> until we confirm it. We'll reach out soon. Questions? Call or text <b>${escapeHtml(s.businessPhone)}</b> or just reply to this email.`),
+        `Your booking is <b>pending</b> until we confirm it. We'll reach out soon. Questions? Call or text <b>${escapeHtml(s.businessPhone)}</b> or just reply to this email.`, escapeHtml(why)),
     });
   }
 
@@ -137,10 +142,10 @@ export function planEmails(payload: WebhookPayload, unitName: string, s: Setting
       subject: `You're confirmed! ${unitName} on ${date} (#${ref})`,
       text: `Hi ${firstName},\n\nGreat news: your booking is CONFIRMED!\n\n${textBlock(details)}\n\n` +
         `We'll be in touch about delivery time. Please make sure the setup area is clear and there's a power outlet nearby. ` +
-        `Questions? Call or text ${s.businessPhone}.\n\n${s.businessName}`,
+        `Questions? Call or text ${s.businessPhone}.\n\n${s.businessName}\n\n${why}`,
       html: layout("You're confirmed for launch!", details,
         `Hi ${escapeHtml(firstName)}, great news: your booking is <b>confirmed</b>!`,
-        `We'll be in touch about delivery time. Please make sure the setup area is clear and there's a power outlet nearby. Questions? Call or text <b>${escapeHtml(s.businessPhone)}</b>.`),
+        `We'll be in touch about delivery time. Please make sure the setup area is clear and there's a power outlet nearby. Questions? Call or text <b>${escapeHtml(s.businessPhone)}</b>.`, escapeHtml(why)),
     });
   }
 
