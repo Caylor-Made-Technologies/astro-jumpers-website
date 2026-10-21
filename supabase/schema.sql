@@ -14,6 +14,7 @@
 create or replace function public.local_today()
 returns date
 language sql stable
+set search_path = public
 as $$ select (now() at time zone 'America/Chicago')::date $$;
 
 -- ---------- Rentals ("units") ----------
@@ -159,7 +160,7 @@ begin
       raise exception 'Notes are too long (1000 characters max).' using errcode = '22023';
     end if;
     if not new.terms_accepted then
-      raise exception 'Please agree to the Rental Terms and Privacy Policy.' using errcode = '22023';
+      raise exception 'Please confirm you are 18 or older and agree to the Rental Terms and Privacy Policy.' using errcode = '22023';
     end if;
     new.terms_accepted_at := now();
 
@@ -230,6 +231,7 @@ $$;
 create or replace function public.touch_updated_at()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 begin
   new.updated_at := now();
@@ -241,6 +243,43 @@ drop trigger if exists units_touch_updated_at on public.units;
 create trigger units_touch_updated_at
   before update on public.units
   for each row execute function public.touch_updated_at();
+
+-- ---------- Booking emails: tell the booking-notify Edge Function ----------
+-- Calls the function on every new or changed booking. The shared secret lives in
+-- Supabase Vault (never in this file). One-time setup, with your own long random value:
+--   select vault.create_secret('PASTE-WEBHOOK_SECRET-HERE', 'booking_webhook_secret');
+-- Use this OR a dashboard Database Webhook, not both, or emails will be sent twice.
+-- If you use a different Supabase project, change the URL below.
+create extension if not exists pg_net with schema extensions;
+
+create or replace function public.notify_booking_webhook()
+returns trigger
+language plpgsql
+security definer          -- needs to read the secret from Vault
+set search_path = public, extensions
+as $$
+declare
+  secret text;
+begin
+  select decrypted_secret into secret from vault.decrypted_secrets where name = 'booking_webhook_secret';
+  perform net.http_post(
+    url := 'https://manbzbtoolbyrvqlxzfl.supabase.co/functions/v1/booking-notify',
+    body := jsonb_build_object(
+      'type', tg_op,
+      'table', tg_table_name,
+      'schema', tg_table_schema,
+      'record', to_jsonb(new),
+      'old_record', case when tg_op = 'UPDATE' then to_jsonb(old) end),
+    headers := jsonb_build_object('Content-Type', 'application/json', 'x-webhook-secret', coalesce(secret, '')),
+    timeout_milliseconds := 5000);
+  return new;
+end;
+$$;
+
+drop trigger if exists booking_notify_webhook on public.bookings;
+create trigger booking_notify_webhook
+  after insert or update on public.bookings
+  for each row execute function public.notify_booking_webhook();
 
 -- ---------- Row Level Security: ON for every table ----------
 alter table public.units         enable row level security;
@@ -300,7 +339,9 @@ grant select on public.admins to authenticated;
 
 revoke execute on function public.is_admin() from public;
 revoke execute on function public.unit_availability(date, date) from public;
-revoke execute on function public.validate_booking() from public;
+revoke execute on function public.validate_booking() from public, anon, authenticated;
+revoke execute on function public.notify_booking_webhook() from public, anon, authenticated;
+revoke execute on function public.touch_updated_at() from public, anon, authenticated;
 grant execute on function public.is_admin() to anon, authenticated;
 grant execute on function public.unit_availability(date, date) to anon, authenticated;
 grant execute on function public.local_today() to anon, authenticated;

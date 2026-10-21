@@ -126,6 +126,9 @@
 
   function renderReviews() {
     var list = $("#review-list");
+    if (!S.reviews || !S.reviews.length) return;   // section stays hidden: never show placeholder reviews
+    $("#reviews").hidden = false;
+    $("#nav-reviews").hidden = false;
     S.reviews.forEach(function (r) {
       var stars = Math.max(0, Math.min(5, r.stars || 5));
       list.appendChild(el("figure", { class: "card review-card" }, [

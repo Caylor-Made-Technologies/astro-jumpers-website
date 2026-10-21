@@ -121,7 +121,7 @@ window.SITE = {
 
   /* ---------- How it works (3 steps) ---------- */
   steps: [
-    { icon: "🚀", title: "Pick your jumper",        text: "Browse our rentals and send a quote request with your date and town." },
+    { icon: "🚀", title: "Pick your jumper",        text: "Browse our rentals and send a booking request with your date and town." },
     { icon: "🛸", title: "We deliver & set up",      text: "We arrive before the party, set everything up safely, and show you the rules." },
     { icon: "🎉", title: "You party!",              text: "Enjoy the fun. When it's over, we take it down and haul it away." }
   ],
@@ -162,13 +162,11 @@ window.SITE = {
   ],
 
   /* ---------- Reviews ---------- */
+  /* Only real reviews from real customers, with their permission, word for word.
+     Made-up or edited reviews break FTC rules. The Reviews section and menu link
+     stay hidden until at least one review is listed. Example:
+     { name: "Jessica R.", town: "Hereford", stars: 5, text: "The kids had a blast!" }, */
   reviews: [
-    { name: "[PLACEHOLDER] Jessica R.", town: "Hereford", stars: 5,
-      text: "Placeholder review. The kids had a blast and setup was quick and easy!" },
-    { name: "[PLACEHOLDER] Marcus T.",  town: "Amarillo", stars: 5,
-      text: "Placeholder review. On time, super clean, and friendly. We'll book again." },
-    { name: "[PLACEHOLDER] Ana G.",     town: "Hart",     stars: 5,
-      text: "Placeholder review. The water slide was the hit of the summer party." }
   ],
 
   /* ---------- Booking form ----------

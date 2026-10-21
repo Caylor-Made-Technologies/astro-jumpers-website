@@ -3,15 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Rental Terms | Astro Jumpers</title>
-  <meta name="description" content="Rental terms for Astro Jumpers bounce house and inflatable rentals.">
+  <title>Rental Terms &amp; Terms of Service | Astro Jumpers</title>
+  <meta name="description" content="Rental terms, refunds, and website terms of service for Astro Jumpers bounce house and inflatable rentals.">
   <meta name="theme-color" content="#130e2d">
   <link rel="icon" href="assets/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
+  <!-- Security: the browser only runs scripts and styles from this site and only talks to our Supabase project.
+       If you change Supabase projects, update the address here too (in every .html file). -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data: blob: https:; connect-src 'self' https://manbzbtoolbyrvqlxzfl.supabase.co wss://manbzbtoolbyrvqlxzfl.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <link rel="stylesheet" href="css/styles.css">
   <script src="js/starfield.js" defer></script>
 </head>
@@ -28,32 +29,47 @@
     </div>
   </header>
   <main id="main" class="container legal">
-    <p class="eyebrow">Last updated: October 18, 2026</p>
-    <h1>Rental Terms</h1>
+    <p class="eyebrow">Last updated: October 21, 2026</p>
+    <h1>Rental Terms &amp; Terms of Service</h1>
     <p class="legal-note">[PLACEHOLDER] This is a plain-English starting template, not legal advice. Have it reviewed by a Texas attorney or your insurance agent and fill in the placeholders before relying on it.</p>
+    <p>These terms are between you and Astro Jumpers of Hereford, Texas 79045 ("we" or "us"). By requesting a booking or using this website, you agree to them. You must be 18 or older to book.</p>
+    <nav aria-label="On this page">
+      <ul>
+        <li><a href="#rental-terms">Part 1: Rental terms</a></li>
+        <li><a href="#refunds">Refunds</a></li>
+        <li><a href="#website-terms">Part 2: Using this website</a></li>
+      </ul>
+    </nav>
 
-    <h2>1. Booking requests</h2>
+    <h2 id="rental-terms">Part 1: Rental terms</h2>
+
+    <h3>1. Booking requests</h3>
     <p>Booking online sends us a <strong>request</strong>. Your booking is <strong>pending</strong> until we confirm it by phone, text, or email. A rental is reserved for you only once it's confirmed. Online bookings must be for tomorrow or later; for same-day rentals, please call.</p>
 
-    <h2>2. Payment and deposit</h2>
-    <p>[PLACEHOLDER] A deposit of $___ holds your date once we confirm. The balance is due ___ (for example, on delivery). We accept ___.</p>
+    <h3>2. Prices, fees, and deposit</h3>
+    <ul>
+      <li>Rental prices on the website are per day.</li>
+      <li>Delivery is free in Hereford. Delivery fees for other towns are listed in the Service Area section of our home page. [PLACEHOLDER: fill in the fee amounts]</li>
+      <li>[PLACEHOLDER] A deposit of $___ holds your date once we confirm. The balance is due ___ (for example, on delivery). We accept ___.</li>
+      <li>No surprise charges: before we confirm your booking, we'll tell you the full total, including rental, delivery fee, deposit, and any tax.</li>
+    </ul>
 
-    <h2>3. Cancellations and changes</h2>
+    <h3>3. Cancellations and changes</h3>
     <p>[PLACEHOLDER] Cancel at least ___ days before your event for a full refund of your deposit. Cancellations after that ___. Call or text us to change your date; we'll move your booking if the rental is available.</p>
 
-    <h2>4. Weather</h2>
+    <h3>4. Weather</h3>
     <p>Inflatables can't be used in high winds (about 15–20 mph or more), rain, or lightning. If unsafe weather is expected, we'll work with you to reschedule or refund your deposit. If weather turns unsafe during your rental, everyone must exit the inflatable right away and it must be turned off.</p>
 
-    <h2>5. Delivery area and setup</h2>
+    <h3>5. Delivery area and setup</h3>
     <ul>
-      <li>We deliver to Hereford, TX and surrounding towns out to Amarillo, Olton, and Hart. [PLACEHOLDER] Delivery fees outside Hereford may apply.</li>
+      <li>We deliver to Hereford, TX and surrounding towns out to Amarillo, Olton, and Hart.</li>
       <li>You'll need a flat, clear area a little larger than the rental, free of rocks, sharp objects, sprinkler heads, and low branches or power lines.</li>
       <li>Grass setups are staked; concrete or driveway setups use sandbags. We can't set up on gravel or steep slopes.</li>
       <li>A standard outdoor outlet within about 50 feet, on its own circuit, is required (or ask about a generator).</li>
       <li>Please give us a clear path from the street to the setup spot. Our crew may decline a setup that isn't safe.</li>
     </ul>
 
-    <h2>6. Safety rules</h2>
+    <h3>6. Safety rules</h3>
     <ul>
       <li>A responsible adult (18+) must watch the inflatable at all times while it's in use.</li>
       <li>Follow the posted limits for number of riders and sizes. Keep similar-size kids together.</li>
@@ -62,13 +78,45 @@
       <li>Keep the blower running and its cord clear. Don't move the inflatable once it's set up.</li>
     </ul>
 
-    <h2>7. Care and damage</h2>
+    <h3>7. Care and damage</h3>
     <p>[PLACEHOLDER] You're responsible for damage beyond normal wear, theft, or extra cleaning caused by misuse (for example, cuts, stains from food or paint, or damage from moving it). We'll inspect the rental at pickup and contact you about any issue.</p>
 
-    <h2>8. Assumption of risk</h2>
+    <h3>8. Assumption of risk</h3>
     <p>[PLACEHOLDER] Bouncing involves some risk of injury. By booking, you agree to supervise riders and enforce these rules, and you accept responsibility for the use of the rental during your rental period. We may ask you to sign a rental agreement and waiver at delivery.</p>
 
-    <h2>9. Contact</h2>
+    <h2 id="refunds">Refunds</h2>
+    <ul>
+      <li><strong>We cancel</strong> (for example, equipment trouble): full refund of anything you paid, or a new date if you prefer.</li>
+      <li><strong>Unsafe weather</strong>: reschedule or refund your deposit, as described in section 4.</li>
+      <li><strong>You cancel</strong>: as described in section 3.</li>
+      <li><strong>Unsafe setup site</strong> (found on arrival and can't be fixed): [PLACEHOLDER: e.g. deposit kept / trip fee of $___].</li>
+      <li>Refunds go back the way you paid, within [PLACEHOLDER: 7] days.</li>
+    </ul>
+
+    <h2 id="website-terms">Part 2: Using this website</h2>
+
+    <h3>9. Information you send us</h3>
+    <p>Please give accurate information when you book. Don't submit bookings for someone else without their permission, and don't send fake or automated requests. We may decline or cancel requests that look fake, abusive, or unsafe.</p>
+
+    <h3>10. Availability and prices on the site</h3>
+    <p>We work to keep rentals, photos, prices, and availability accurate, but mistakes can happen. "Ready for Launch" means a rental isn't booked yet; it isn't reserved for you until we confirm. If a price is listed in error, we'll tell you before confirming your booking.</p>
+
+    <h3>11. Our content</h3>
+    <p>The Astro Jumpers name, logo, photos, and text on this website belong to Astro Jumpers or are used with permission. Please don't copy them for commercial use without asking.</p>
+
+    <h3>12. Don't misuse the website</h3>
+    <p>Don't try to break into, overload, or interfere with the website or its booking system, or access information that isn't yours.</p>
+
+    <h3>13. Limits on liability</h3>
+    <p>[PLACEHOLDER: have an attorney review] The website is provided "as is." To the extent Texas law allows, Astro Jumpers isn't responsible for indirect or consequential losses from using the website. Nothing in these terms limits liability that can't be limited by law.</p>
+
+    <h3>14. Texas law</h3>
+    <p>These terms are governed by the laws of the State of Texas. Any dispute will be handled in the courts of Deaf Smith County, Texas, unless the law requires otherwise. We'd much rather sort things out with a phone call first.</p>
+
+    <h3>15. Changes and privacy</h3>
+    <p>If we change these terms, we'll update the date at the top. Bookings follow the terms in place when you made them. Our <a href="privacy.html">Privacy Policy</a> explains how we handle your information.</p>
+
+    <h3>16. Contact</h3>
     <p>Questions? Call or text <a href="tel:+18063822097">(806) 382-2097</a> or email <a href="mailto:astrojumpersco@gmail.com">astrojumpersco@gmail.com</a>.</p>
   </main>
   <footer class="site-footer">

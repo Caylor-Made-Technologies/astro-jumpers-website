@@ -74,7 +74,7 @@
     check(f.email, EMAIL_RE.test(f.email.value.trim()), "Enter a valid email, like name@example.com.");
     check(f.address, f.address.value.trim().length > 0, "Enter the event address.");
     check(f.town, !!f.town.value, "Choose your town.");
-    check(f.terms, f.terms.checked, "Please agree to the Rental Terms and Privacy Policy.");
+    check(f.terms, f.terms.checked, "Please confirm you're 18 or older and agree to the Rental Terms and Privacy Policy.");
     return errors;
   }
   // Re-check a field as soon as it's fixed.

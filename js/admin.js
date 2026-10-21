@@ -74,6 +74,8 @@
   }
 
   /* ---------- Startup ---------- */
+  // Refuse to run inside another site's frame (clickjacking). GitHub Pages can't send the header that blocks this.
+  if (window.top !== window.self) { document.body.textContent = "Open this page directly: " + location.href; return; }
   if (!cfg.url || !cfg.anonKey || !window.supabase) { show("setup-needed"); return; }
   var sb = window.supabase.createClient(cfg.url, cfg.anonKey);
   var units = [];
@@ -380,7 +382,11 @@
     var ref = b.id.replace(/-/g, "").slice(0, 8).toUpperCase();
     var actions = [];
     if (b.status === "pending") actions.push(el("button", { class: "btn btn-sm btn-primary", type: "button", "data-act": "confirmed", "data-id": b.id, text: "✅ Confirm" }));
-    if (b.status !== "cancelled") actions.push(el("button", { class: "btn btn-sm btn-secondary", type: "button", "data-act": "cancelled", "data-id": b.id, text: "Cancel" }));
+    var isPast = b.event_date < todayISO();
+    if (b.status !== "cancelled" && !isPast) actions.push(el("button", { class: "btn btn-sm btn-secondary", type: "button", "data-act": "cancelled", "data-id": b.id, text: "Cancel" }));
+    // For privacy requests ("please delete my info"): only cancelled or past bookings, so a live booking isn't lost by accident.
+    if (b.status === "cancelled" || isPast) actions.push(el("button", { class: "btn btn-sm btn-secondary", type: "button", "data-act": "delete", "data-id": b.id,
+      "aria-label": "Delete booking #" + ref + " and the customer's details", text: "🗑️ Delete" }));
     var contact = [];
     if (b.phone) contact.push(el("a", { href: "tel:+1" + b.phone, text: "📞 " + prettyPhone(b.phone) }));
     if (b.email) contact.push(el("a", { href: "mailto:" + b.email, text: "✉️ " + b.email }));
@@ -405,13 +411,17 @@
     var filter = $("booking-filter").value;
     var q = sb.from("bookings")
       .select("id, unit_id, event_date, customer_name, phone, email, event_address, town, notes, status, created_at")
-      .gte("event_date", todayISO()).order("event_date").order("created_at");
-    q = filter === "active" ? q.in("status", ["pending", "confirmed"]) : q.eq("status", filter);
+      .order("created_at");
+    if (filter === "past") q = q.lt("event_date", todayISO()).order("event_date", { ascending: false }).limit(200);
+    else {
+      q = q.gte("event_date", todayISO()).order("event_date");
+      q = filter === "active" ? q.in("status", ["pending", "confirmed"]) : q.eq("status", filter);
+    }
     return q.then(function (res) {
       var list = $("bookings-list");
       list.textContent = "";
       if (res.error) { list.appendChild(el("p", { class: "muted", text: friendlyError(res.error) })); return; }
-      if (!res.data.length) { list.appendChild(el("p", { class: "muted admin-empty", text: "No upcoming bookings here." })); return; }
+      if (!res.data.length) { list.appendChild(el("p", { class: "muted admin-empty", text: filter === "past" ? "No past bookings." : "No upcoming bookings here." })); return; }
       var groups = {};
       res.data.forEach(function (b) { (groups[b.event_date] = groups[b.event_date] || []).push(b); });
       Object.keys(groups).forEach(function (date) {
@@ -429,6 +439,16 @@
     var btn = e.target.closest("[data-act]");
     if (!btn) return;
     var next = btn.getAttribute("data-act");
+    if (next === "delete") {
+      if (!confirm("Delete this booking and the customer's name, phone, email, and address for good? This can't be undone.")) return;
+      btn.disabled = true;
+      sb.from("bookings").delete().eq("id", btn.getAttribute("data-id")).then(function (res) {
+        if (res.error) { toast(friendlyError(res.error), true); btn.disabled = false; return; }
+        toast("Booking and customer details deleted.");
+        loadBookings();
+      });
+      return;
+    }
     if (next === "cancelled" && !confirm("Cancel this booking? The date will open up for others.")) return;
     btn.disabled = true;
     sb.from("bookings").update({ status: next }).eq("id", btn.getAttribute("data-id")).then(function (res) {

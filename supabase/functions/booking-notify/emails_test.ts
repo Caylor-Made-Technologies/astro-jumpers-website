@@ -69,6 +69,18 @@ Deno.test("booking without an email only notifies the owner", () => {
   assertEquals(planEmails(ev("INSERT", { email: null }), "X", settings).map((e) => e.to), ["owner@astro.test"]);
 });
 
+Deno.test("customer emails say why they were sent (transactional only)", () => {
+  const out = [
+    ...planEmails(ev("INSERT", {}), "X", settings).slice(1),
+    ...planEmails(ev("UPDATE", { status: "confirmed" }, { status: "pending" }), "X", settings),
+  ];
+  assertEquals(out.length, 2);
+  for (const e of out) {
+    assertStringIncludes(e.text, "because you requested a booking");
+    assertStringIncludes(e.html, "We only email you about your bookings.");
+  }
+});
+
 Deno.test("booking reference is 8 uppercase characters", () => {
   assertEquals(bookingRef(booking.id), "3F2A9C1E");
 });

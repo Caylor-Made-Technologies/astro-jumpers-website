@@ -9,9 +9,10 @@
   <link rel="icon" href="assets/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
+  <!-- Security: the browser only runs scripts and styles from this site and only talks to our Supabase project.
+       If you change Supabase projects, update the address here too (in every .html file). -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data: blob: https:; connect-src 'self' https://manbzbtoolbyrvqlxzfl.supabase.co wss://manbzbtoolbyrvqlxzfl.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <link rel="stylesheet" href="css/styles.css">
   <script src="js/starfield.js" defer></script>
 </head>
@@ -28,43 +29,59 @@
     </div>
   </header>
   <main id="main" class="container legal">
-    <p class="eyebrow">Last updated: October 18, 2026</p>
+    <p class="eyebrow">Last updated: October 21, 2026</p>
     <h1>Privacy Policy</h1>
     <p class="legal-note">[PLACEHOLDER] This is a plain-English starting template, not legal advice. Have it reviewed by a Texas attorney or your insurance agent and fill in the placeholders before relying on it.</p>
 
+    <h2>Who we are</h2>
+    <p>Astro Jumpers is a bounce house and inflatable rental business in Hereford, Texas 79045. Questions about this policy: call or text <a href="tel:+18063822097">(806) 382-2097</a> or email <a href="mailto:astrojumpersco@gmail.com">astrojumpersco@gmail.com</a>.</p>
+
     <h2>What we collect</h2>
-    <p>When you book a rental, we collect what you type into the booking form: your <strong>name, phone number, email, event address, town, event date, the rental you chose, and any notes</strong>. We also record when you agreed to our Rental Terms.</p>
-    <p>We don't ask for payment card numbers on this website.</p>
+    <p>When you book a rental, we collect what you type into the booking form: your <strong>name, phone number, email, event address, town, event date, the rental you chose, setup surface, and any notes</strong>. We also record the date and time you agreed to our Rental Terms.</p>
+    <p>We only ask for what we need to deliver and set up your rental. We don't ask for payment card numbers, birthdays, or account passwords on this website, and you don't need an account to book.</p>
+    <p>Like almost every website, the companies that host our site and database may keep short-term technical logs (such as IP address and browser type) to keep their services secure and working.</p>
 
     <h2>How we use it</h2>
     <ul>
       <li>To confirm, deliver, set up, and pick up your rental.</li>
       <li>To contact you about your booking by phone, text, or email, including a "booking received" email and a "confirmed" email.</li>
-      <li>To keep basic records of our rentals.</li>
+      <li>To keep basic business records of our rentals.</li>
     </ul>
-    <p>We don't sell your information, and we don't use it for advertising.</p>
+
+    <h2>What we don't do</h2>
+    <ul>
+      <li>We don't sell or rent your information to anyone.</li>
+      <li>We don't use it for advertising, and we don't send marketing emails or texts.</li>
+      <li>We don't use analytics, tracking pixels, or advertising cookies on this website.</li>
+    </ul>
 
     <h2>Who can see it</h2>
     <p>Only the Astro Jumpers owner can see booking details. Other website visitors can only see which rentals are taken on which dates, never names or contact details.</p>
-    <p>We use a few service providers to run the website, and they handle data only to provide their service to us:</p>
+    <p>We use a few service providers to run the website. They handle data only to provide their service to us:</p>
     <ul>
-      <li><strong>Supabase</strong>: stores bookings securely.</li>
-      <li><strong>Our email provider</strong> [PLACEHOLDER: Brevo or Resend]: sends booking emails.</li>
+      <li><strong>Supabase</strong>: stores bookings and rental photos.</li>
+      <li><strong>Brevo</strong> [PLACEHOLDER: confirm, or change to Resend]: sends booking emails.</li>
       <li><strong>GitHub Pages</strong>: hosts the website.</li>
-      <li><strong>Google Fonts</strong>: provides the website's fonts (your browser requests them from Google).</li>
     </ul>
+    <p>We may also share information if the law requires it, or to protect someone's safety.</p>
+
+    <h2>Emails and texts</h2>
+    <p>We only email or text you about bookings you request. If we text you and you'd rather we didn't, reply STOP or tell us, and we'll use email or phone instead.</p>
+
+    <h2>Cookies and storage</h2>
+    <p>The public website doesn't set any cookies. It doesn't use tracking or advertising cookies, so there's nothing to accept or decline. The owner's admin page keeps the owner signed in using the browser's local storage; this is only needed for signing in.</p>
+
+    <h2>How we protect it</h2>
+    <p>The website uses an encrypted (HTTPS) connection. Booking details are stored in a database with access rules that let only the owner's login read them. No system is perfect, but we work to keep your information safe and will tell you if a breach affects it, as the law requires.</p>
 
     <h2>How long we keep it</h2>
-    <p>[PLACEHOLDER] We keep booking records for up to 3 years for our business records, then delete them. You can ask us to delete your information sooner, unless we need to keep it for an open booking or a legal reason.</p>
+    <p>[PLACEHOLDER: confirm with your accountant] We keep booking records for up to 3 years for our business records, then delete them. You can ask us to delete your information sooner, unless we need to keep it for an open booking, a payment or damage issue, or a legal reason.</p>
 
-    <h2>Cookies</h2>
-    <p>This website doesn't use advertising or tracking cookies. If you use the owner's admin page, your browser stores a login session.</p>
+    <h2>Your choices: see, correct, or delete your information</h2>
+    <p>To see, correct, or delete the information we have about you, call or text <a href="tel:+18063822097">(806) 382-2097</a> or email <a href="mailto:astrojumpersco@gmail.com">astrojumpersco@gmail.com</a>. We'll confirm it's you by checking the phone number or email on the booking, then take care of it within 45 days (usually much sooner) and let you know when it's done.</p>
 
     <h2>Children</h2>
-    <p>Our rentals are for kids, but bookings must be made by a parent or another adult (18+). We don't knowingly collect information from children.</p>
-
-    <h2>Your choices</h2>
-    <p>To see, correct, or delete the information we have about you, call or text <a href="tel:+18063822097">(806) 382-2097</a> or email <a href="mailto:astrojumpersco@gmail.com">astrojumpersco@gmail.com</a>.</p>
+    <p>Our rentals are for kids, but this website is for parents and other adults. Bookings must be made by an adult (18+). We don't knowingly collect information from children under 13. If you think a child sent us information, contact us and we'll delete it.</p>
 
     <h2>Changes</h2>
     <p>If we change this policy, we'll update the date at the top of this page.</p>
